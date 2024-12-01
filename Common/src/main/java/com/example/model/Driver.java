@@ -1,0 +1,32 @@
+package com.example.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "drivers")
+public class Driver{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+//    @NotBlank(message = "License number is required")
+//    @Column(unique = true, nullable = false)
+//    private String licenseNumber;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id")
+    private Manager manager;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
+    @Min(value = 0, message = "Years of experience cannot be negative")
+    @Column(nullable = false)
+    private int yearsOfExperience;
+}

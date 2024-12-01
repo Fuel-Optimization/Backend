@@ -1,0 +1,76 @@
+package com.example.Kafka.Producers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+@Service
+public class KafkaSehaDriverProducer {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final Random random = new Random();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // List of predefined car licenses
+    private final List<String> carLicenseIds = List.of(
+            "CAR-1-4536",
+            "CAR-2-7893",
+            "CAR-3-2345",
+            "CAR-4-9823",
+            "CAR-5-5647",
+            "CAR-6-3942",
+            "CAR-7-1427",
+            "CAR-8-8765",
+            "CAR-9-2954",
+            "CAR-10-6584"
+    );
+
+    public KafkaSehaDriverProducer(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    @Scheduled(fixedRate = 60000) // Send data every second
+    public void sendCarData() {
+        try {
+            // Generate mock car data
+            Map<String, Object> carData = new HashMap<>();
+            carData.put("DriverId", random.nextInt(5) + 1); // Random driver ID (1-5)
+            carData.put("CarLicenseId", getRandomCarLicenseId()); // Add random car license
+            carData.put("Accelerator_Pedal_value", round(random.nextDouble() * 100, 1));
+            carData.put("Intake_air_pressure", random.nextInt(20) + 20);
+            carData.put("Acceleration_speed_-_Longitudinal", round(random.nextDouble() * 20 - 10, 1));
+            carData.put("Minimum_indicated_engine_torque", random.nextInt(10));
+            carData.put("Indication_of_brake_switch_ON/OFF", random.nextBoolean() ? 1 : 0);
+            carData.put("Converter_clutch", random.nextBoolean() ? 1 : 0);
+            carData.put("Engine_Idel_Target_Speed", random.nextInt(200) + 600);
+            carData.put("Current_spark_timing", round(random.nextDouble() * 20 - 10, 1));
+
+            // Convert to JSON string
+            String message = objectMapper.writeValueAsString(carData);
+
+            // Send data to Kafka
+            kafkaTemplate.send("TestGp", message);
+            System.out.println("Produced: " + message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getRandomCarLicenseId() {
+        // Select a random car license ID
+        return carLicenseIds.get(random.nextInt(carLicenseIds.size()));
+    }
+
+    private double round(double value, int places) {
+        double scale = Math.pow(10, places);
+        return Math.round(value * scale) / scale;
+    }
+}

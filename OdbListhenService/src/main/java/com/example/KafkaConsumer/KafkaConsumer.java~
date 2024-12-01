@@ -1,0 +1,133 @@
+package com.example.KafkaConsumer;
+
+import com.example.mappers.DriverRecordMapper;
+import com.example.mappers.ModelAttributesMapper;
+import com.example.model.*;
+import com.example.model.Repository.DriverRepository;
+import com.example.model.Repository.AlertRepository;
+import com.example.service.DriverRecordService;
+import com.example.service.EmailService;
+import com.example.service.PredictionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+public class KafkaConsumer {
+
+    private final PredictionService predictionService;
+    private final DriverRecordService driverRecordService;
+    private final ModelAttributesMapper modelAttributesMapper;
+    private final DriverRecordMapper driverRecordMapper;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final AlertRepository alertRepository;
+    private final DriverRepository driverRepository;
+    private final EmailService emailService;
+    private static final Logger logger = Logger.getLogger(KafkaConsumer.class.getName());
+
+    @Autowired
+    public KafkaConsumer(PredictionService predictionService,
+                         DriverRecordService driverRecordService,
+                         ModelAttributesMapper modelAttributesMapper,
+                         DriverRecordMapper driverRecordMapper,
+                         AlertRepository alertRepository,
+                         DriverRepository driverRepository,
+                         RedisTemplate<String, String> redisTemplate,
+                         EmailService emailService) {
+        this.driverRepository = driverRepository;
+        this.predictionService = predictionService;
+        this.driverRecordService = driverRecordService;
+        this.modelAttributesMapper = modelAttributesMapper;
+        this.driverRecordMapper = driverRecordMapper;
+        this.alertRepository = alertRepository;
+        this.redisTemplate = redisTemplate;
+        this.emailService = emailService;
+    }
+
+    @KafkaListener(topics = "FuelOpt", groupId = "flask-api-group")
+    public void consume(ConsumerRecord<String, String> record) {
+        try {
+            Map<String, Object> data = new ObjectMapper().readValue(record.value(), Map.class);
+            ModelAttributes modelAttributes = modelAttributesMapper.map(data);
+            Map<String, Object> predictionResponse = predictionService.getPrediction(modelAttributes);
+            DriverRecord driverRecord = driverRecordMapper.map(data, modelAttributes, predictionResponse);
+
+            double predictedFuelConsumption = driverRecord.getPredictedFuelConsumption();
+            int driverId = driverRecord.getDriverId();
+            saveFuelConsumption(driverId, predictedFuelConsumption);
+            driverRecordService.saveDriverRecord(driverRecord);
+            logger.info("Saved to database");
+        } catch (Exception e) {
+            logger.info("Error processing Kafka message: " + e.getMessage());
+        }
+    }
+
+    private void saveFuelConsumption(int driverId, double fuelConsumption) {
+        String key = "fuel:consumption:" + driverId;
+        long timestamp = Instant.now().toEpochMilli();
+        redisTemplate.opsForZSet().add(key, String.valueOf(fuelConsumption), timestamp);
+        Long recordCount = redisTemplate.opsForZSet().zCard(key);
+        if (recordCount != null && recordCount >= 5) {
+            // Process the key
+            processRecordsForKey(driverId, key);
+        }
+    }
+
+    private void processRecordsForKey(int driverId, String key) {
+        Set<String> consumptions = redisTemplate.opsForZSet().range(key, 0, -1);
+        if (consumptions == null || consumptions.isEmpty()) {
+            return;
+        }
+
+        double avgFuelConsumption = consumptions.stream()
+                .mapToDouble(Double::parseDouble)
+                .average()
+                .orElse(0.0);
+
+        if (avgFuelConsumption > 12) {
+            Driver driver = driverRepository.findById((long) driverId).orElse(null);
+            if (driver != null && driver.getManager() != null) {
+                Manager manager = driver.getManager();
+                String managerEmail = manager.getUser().getEmail(); // Assuming Manager entity has an email field
+                Alert alert = new Alert(
+                        0L,
+                        String.valueOf(driverId),
+                        avgFuelConsumption,
+                        "Driver " + driver.getUser().getFirstName() + " " +
+                                driver.getUser().getFamilyName() +
+                                " has consumed more than " + avgFuelConsumption +
+                                " liters per unit over the recent period.",
+                        LocalDateTime.now(),
+                        manager
+                );
+                alertRepository.save(alert);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+                String currentDate = dateFormat.format(new Date());
+                String fullname= driver.getUser().getFirstName() + " " +
+                        driver.getUser().getFamilyName();
+                String subject = "Fuel Consumption Alert";
+                String body = "Dear " + manager.getUser().getFirstName() + ",\n\n" +
+                        "Driver "  +fullname+
+                        " has exceeded the expected fuel consumption"+  " At " + currentDate + "\n\n" +" with an average of " +
+                        String.format("%.2f", avgFuelConsumption) + " liters per unit over the recent period.\n\n" +
+
+                        "Please take necessary action.\n\n" +
+                        "Best regards,\nFuel Monitoring System";
+
+                emailService.sendEmail(Collections.singletonList(managerEmail), subject, body);
+                logger.info("Email sent to: " + managerEmail);
+                logger.info(fullname);
+            }
+        }
+
+        redisTemplate.opsForZSet().removeRange(key, 0, 4);
+    }
+}
