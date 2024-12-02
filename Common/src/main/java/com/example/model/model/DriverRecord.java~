@@ -1,0 +1,57 @@
+package com.example.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.Date;
+
+@Entity
+@Data
+public class DriverRecord {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private int driverId;
+
+    private int engineSpeed;
+    private int vehicleSpeed;
+    private double acceleratorPedalValue;
+    private int intakeAirPressure;
+    private double accelerationSpeedLongitudinal;
+    private int minimumIndicatedEngineTorque;
+    private int indicationOfBrakeSwitchOnOff;
+    private int converterClutch;
+    private int engineIdleTargetSpeed;
+    private int currentSparkTiming;
+    private double masterCylinderPressure;
+    private int torqueOfFriction;
+    private int engineInFuelCutOff;
+    private int currentGear;
+    private double calculatedRoadGradient;
+    private double longTermFuelTrimBank1;
+
+    // Metadata fields
+    private String carId;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date time;
+
+    private double predictedFuelConsumption;
+    private double engineSpeedContribution;
+    private double vehicleSpeedContribution;
+    private double acceleratorPedalValueContribution;
+    private double intakeAirPressureContribution;
+    private double accelerationSpeedLongitudinalContribution;
+    private double minimumIndicatedEngineTorqueContribution;
+    private double indicationOfBrakeSwitchOnOffContribution;
+    private double converterClutchContribution;
+    private double engineIdleTargetSpeedContribution;
+    private double currentSparkTimingContribution;
+    private double masterCylinderPressureContribution;
+    private double torqueOfFrictionContribution;
+    private double engineInFuelCutOffContribution;
+    private double currentGearContribution;
+    private double calculatedRoadGradientContribution;
+    private double longTermFuelTrimBank1Contribution;
+}
