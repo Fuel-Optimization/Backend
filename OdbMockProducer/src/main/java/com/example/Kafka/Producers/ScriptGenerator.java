@@ -1,6 +1,6 @@
 //package com.example.Kafka.Producers;
 //
-//import com.example.model.ModelAttributes;
+//import com.example.model.model.ModelAttributes;
 //import jakarta.annotation.PostConstruct;
 //import org.apache.kafka.clients.producer.ProducerRecord;
 //import org.springframework.kafka.core.KafkaTemplate;

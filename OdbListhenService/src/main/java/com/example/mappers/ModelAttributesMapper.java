@@ -1,6 +1,6 @@
 package com.example.mappers;
 
-import com.example.model.ModelAttributes;
+import com.example.model.model.ModelAttributes;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

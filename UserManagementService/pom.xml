@@ -23,22 +23,6 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>4.0.2</version> <!-- Adjust version as per your Spring Boot version -->
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.example</groupId>-->
-<!--            <artifactId>Common</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--&lt;!&ndash;            <exclusions>&ndash;&gt;-->
-<!--&lt;!&ndash;                <exclusion>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <groupId>org.springframework.boot</groupId>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <artifactId>spring-boot-starter-data-jpa</artifactId>&ndash;&gt;-->
-<!--&lt;!&ndash;                </exclusion>&ndash;&gt;-->
-<!--&lt;!&ndash;                <exclusion>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <groupId>com.h2database</groupId>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <artifactId>h2</artifactId>&ndash;&gt;-->
-<!--&lt;!&ndash;                </exclusion>&ndash;&gt;-->
-<!--&lt;!&ndash;            </exclusions>&ndash;&gt;-->
-<!--        </dependency>-->
     </dependencies>
 
 </project>

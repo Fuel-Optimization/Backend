@@ -1,6 +1,6 @@
 package com.example.Kafka.Producers;
 
-import com.example.model.ModelAttributes;
+import com.example.model.model.ModelAttributes;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;

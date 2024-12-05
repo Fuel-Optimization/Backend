@@ -1,94 +1,95 @@
-package com.example;
-
-import com.example.model.Driver;
-import com.example.model.Manager;
-import com.example.model.User;
-import com.example.model.User.Role;
-import com.example.repository.DriverRepository;
-import com.example.repository.ManagerRepository;
-import com.example.repository.UserRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
-@Component
-public class DataInitializer implements CommandLineRunner {
-
-    private final UserRepository userRepository;
-    private final ManagerRepository managerepo;
-    private final DriverRepository driverRepo;
-
-    public DataInitializer(UserRepository userRepository, DriverRepository driverRepository,ManagerRepository managerepo) {
-        this.userRepository = userRepository;
-        this.driverRepo = driverRepository;
-        this.managerepo=managerepo;
-
-    }
-
-    @Override
-    @Transactional
-    public void run(String... args) {
-        // List of 20 Egyptian names
-        List<String[]> names = Arrays.asList(
-                new String[]{"Ahmed", "Hassan", "Ali"},
-                new String[]{"Mohamed", "Salah", "Ibrahim"},
-                new String[]{"Omar", "Sherif", "Kamal"},
-                new String[]{"Youssef", "Ali", "Mansour"},
-                new String[]{"Khaled", "Mansour", "Sayed"},
-                new String[]{"Hassan", "Ibrahim", "Saad"},
-                new String[]{"Tarek", "Hamed", "Farouk"},
-                new String[]{"Amr", "Diab", "Fathy"},
-                new String[]{"Mostafa", "Kamal", "Abdel"},
-                new String[]{"Ibrahim", "Said", "Ghanem"},
-                new String[]{"Ayman", "Nour", "Sherif"},
-                new String[]{"Mahmoud", "El-Sayed", "Fouad"},
-                new String[]{"Sherif", "Ismail", "Taha"},
-                new String[]{"Ali", "Mahmoud", "Sami"},
-                new String[]{"Saad", "Zaghloul", "Hossam"},
-                new String[]{"Hany", "Ramzy", "Nour"},
-                new String[]{"Gamal", "Abdel", "Khaled"},
-                new String[]{"Fathy", "Ahmed", "Nabil"},
-                new String[]{"Nabil", "Farouk", "Samer"},
-                new String[]{"Samir", "Ghanem", "Yasser"}
-        );
-
-        Random random = new Random();
-
-        // Create and save users
-        for (int i = 0; i < names.size(); i++) {
-            String[] fullName = names.get(i);
-            User user = new User();
-            user.setFirstName(fullName[0]);
-            user.setLastName(fullName[1]);
-            user.setFamilyName(fullName[2]);
-            user.setEmail(fullName[0].toLowerCase() + "." + fullName[1].toLowerCase() + "@example.com");
-            user.setPassword("password" + (i + 1));
-            user.setPhoneNumber("+20122" + String.format("%06d", i + 1)); // Unique phone number
-            user.setNationalid("ID" + String.format("%06d", i + 1)); // Unique national ID
-            user.setRole(Role.Driver);
-
-            // Save user
-            userRepository.save(user);
-            List<Manager> managers = managerepo.findAll();
-            if (managers.size() < 2) {
-                System.out.println("Error: Not enough managers in the database.");
-                return;
-            }
-            Manager manager1 = managers.get(0);
-            Manager manager2 = managers.get(1);
-            // Assign user to a driver
-            Driver driver = new Driver();
-            driver.setUser(user);
-            driver.setYearsOfExperience(random.nextInt(10) + 1); // Random years of experience
-            driver.setManager(i < 10 ? manager1 : manager2); // First 10 to manager ID 1, next 10 to manager ID 2
-            driverRepo.save(driver);
-        }
-
-        System.out.println("Data initialized: 20 Egyptian drivers assigned to managers 1 and 2.");
-    }
-}
-
+//package com.example;
+//
+//import com.example.model.model.Driver;
+//import com.example.model.model.Manager;
+//import com.example.model.Repository.DriverRepository;
+//import com.example.model.Repository.ManagerRepoistory;
+//import com.example.model.Repository.UserRepository;
+//import com.example.model.model.User;
+//import com.example.model.model.User.Role;
+//
+//import org.springframework.boot.CommandLineRunner;
+//import org.springframework.stereotype.Component;
+//import org.springframework.transaction.annotation.Transactional;
+//
+//import java.util.Arrays;
+//import java.util.List;
+//import java.util.Random;
+//
+//@Component
+//public class DataInitializer implements CommandLineRunner {
+//
+//    private final UserRepository userRepository;
+//    private final ManagerRepoistory managerepo;
+//    private final DriverRepository driverRepo;
+//
+//    public DataInitializer(UserRepository userRepository, DriverRepository driverRepository,ManagerRepoistory managerepo) {
+//        this.userRepository = userRepository;
+//        this.driverRepo = driverRepository;
+//        this.managerepo=managerepo;
+//
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void run(String... args) {
+//        // List of 20 Egyptian names
+//        List<String[]> names = Arrays.asList(
+//                new String[]{"Ahmed", "Hassan", "Ali"},
+//                new String[]{"Mohamed", "Salah", "Ibrahim"},
+//                new String[]{"Omar", "Sherif", "Kamal"},
+//                new String[]{"Youssef", "Ali", "Mansour"},
+//                new String[]{"Khaled", "Mansour", "Sayed"},
+//                new String[]{"Hassan", "Ibrahim", "Saad"},
+//                new String[]{"Tarek", "Hamed", "Farouk"},
+//                new String[]{"Amr", "Diab", "Fathy"},
+//                new String[]{"Mostafa", "Kamal", "Abdel"},
+//                new String[]{"Ibrahim", "Said", "Ghanem"},
+//                new String[]{"Ayman", "Nour", "Sherif"},
+//                new String[]{"Mahmoud", "El-Sayed", "Fouad"},
+//                new String[]{"Sherif", "Ismail", "Taha"},
+//                new String[]{"Ali", "Mahmoud", "Sami"},
+//                new String[]{"Saad", "Zaghloul", "Hossam"},
+//                new String[]{"Hany", "Ramzy", "Nour"},
+//                new String[]{"Gamal", "Abdel", "Khaled"},
+//                new String[]{"Fathy", "Ahmed", "Nabil"},
+//                new String[]{"Nabil", "Farouk", "Samer"},
+//                new String[]{"Samir", "Ghanem", "Yasser"}
+//        );
+//
+//        Random random = new Random();
+//
+//        // Create and save users
+//        for (int i = 0; i < names.size(); i++) {
+//            String[] fullName = names.get(i);
+//            User user = new User();
+//            user.setFirstName(fullName[0]);
+//            user.setLastName(fullName[1]);
+//            user.setFamilyName(fullName[2]);
+//            user.setEmail(fullName[0].toLowerCase() + "." + fullName[1].toLowerCase() + "@example.com");
+//            user.setPassword("password" + (i + 1));
+//            user.setPhoneNumber("+20122" + String.format("%06d", i + 1)); // Unique phone number
+//            user.setNationalid("ID" + String.format("%06d", i + 1)); // Unique national ID
+//            user.setRole(Role.Driver);
+//
+//            // Save user
+//            userRepository.save(user);
+//            List<Manager> managers = managerepo.findAll();
+//            if (managers.size() < 2) {
+//                System.out.println("Error: Not enough managers in the database.");
+//                return;
+//            }
+//            Manager manager1 = managers.get(0);
+//            Manager manager2 = managers.get(1);
+//            // Assign user to a driver
+//            Driver driver = new Driver();
+//            driver.setUser(user);
+//            driver.setYearsOfExperience(random.nextInt(10) + 1); // Random years of experience
+//            driver.setManager(i < 10 ? manager1 : manager2); // First 10 to manager ID 1, next 10 to manager ID 2
+//            driverRepo.save(driver);
+//        }
+//
+//        System.out.println("Data initialized: 20 Egyptian drivers assigned to managers 1 and 2.");
+//    }
+//}
+//

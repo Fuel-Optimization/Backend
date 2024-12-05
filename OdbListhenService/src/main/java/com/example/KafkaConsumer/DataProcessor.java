@@ -2,8 +2,8 @@ package com.example.KafkaConsumer;
 
 import com.example.mappers.DriverRecordMapper;
 import com.example.mappers.ModelAttributesMapper;
-import com.example.model.DriverRecord;
-import com.example.model.ModelAttributes;
+import com.example.model.model.DriverRecord;
+import com.example.model.model.ModelAttributes;
 import com.example.service.DriverRecordService;
 import com.example.service.PredictionService;
 import jakarta.annotation.PostConstruct;

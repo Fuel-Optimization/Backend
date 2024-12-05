@@ -1,4 +1,4 @@
-package com.example.model;
+package com.example.model.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -2,9 +2,9 @@ package com.example.KafkaConsumer;
 
 import com.example.mappers.DriverRecordMapper;
 import com.example.mappers.ModelAttributesMapper;
-import com.example.model.*;
 import com.example.model.Repository.DriverRepository;
 import com.example.model.Repository.AlertRepository;
+import com.example.model.model.*;
 import com.example.service.DriverRecordService;
 import com.example.service.EmailService;
 import com.example.service.PredictionService;

@@ -7,7 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import com.example.model.ModelAttributes;
+import com.example.model.model.ModelAttributes;
 
 import java.util.Map;
 

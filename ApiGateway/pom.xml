@@ -11,35 +11,30 @@
 
     <artifactId>ApiGateway</artifactId>
     <dependencies>
-        <!-- Spring Cloud Gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
             <version>4.0.8</version>
         </dependency>
 
-        <!-- Spring Boot Reactive Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
             <version>3.1.5</version>
         </dependency>
 
-        <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>4.0.2</version>
         </dependency>
 
-        <!-- Resilience4j for Circuit Breaker -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <version>3.0.0</version>
             <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
         </dependency>
 
-        <!-- Lombok (Optional, for annotations like @Data) -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

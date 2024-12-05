@@ -15,7 +15,7 @@ public class GatewayConfiguration {
                         .filters(f -> f
                                 .circuitBreaker(c -> c.setName("userCircuitBreaker")
                                         .setFallbackUri("forward:/fallback/users")))
-                        .uri("lb://USERSERVICE")) // Service name in Eureka
+                        .uri("lb://USERSERVICE"))
                 .route("unmatched-route", r -> r
                         .path("/**") // Matches any request
                         .filters(f -> f

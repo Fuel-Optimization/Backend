@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.model.DriverRecord;
+import com.example.model.model.DriverRecord;
 
 
 import com.example.model.Repository.DriverRecordRepository;

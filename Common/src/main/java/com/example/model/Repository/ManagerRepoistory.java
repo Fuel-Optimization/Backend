@@ -1,13 +1,13 @@
 package com.example.model.Repository;
 
-import com.example.model.model.Driver;
-
+import com.example.model.model.Manager;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+
 @Repository
-public interface DriverRepository extends JpaRepository<Driver, Long> {
-     Optional<Driver> findById(Long id);
+public interface ManagerRepoistory extends JpaRepository<Manager, Long> {
+    Optional<Manager> findById(Long id);
 
 }

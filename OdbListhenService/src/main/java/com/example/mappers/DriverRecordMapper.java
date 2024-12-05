@@ -1,7 +1,7 @@
 package com.example.mappers;
 
-import com.example.model.DriverRecord;
-import com.example.model.ModelAttributes;
+import com.example.model.model.DriverRecord;
+import com.example.model.model.ModelAttributes;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
