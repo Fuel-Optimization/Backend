@@ -15,7 +15,7 @@ import java.util.Map;
 public class PredictionService {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String flaskApiUrl = "http://127.0.0.1:5000/predict"; // Replace with actual Flask API URL
+    private final String flaskApiUrl = "http://127.0.0.1:5000/predict";
 
     public Map<String, Object> getPrediction(ModelAttributes modelAttributes) {
 
