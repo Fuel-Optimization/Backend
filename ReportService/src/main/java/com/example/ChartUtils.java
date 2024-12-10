@@ -10,20 +10,16 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.PdfReportService.categorizeFuelConsumption;
+import static com.example.PdfUtils.categorizeFuelConsumption;import static com.example.PdfUtils.categorizeFuelConsumption;
 
 
 public class ChartUtils {
 
 
-
-
-
-
     public static byte[] generateFuelConsumptionByMonthChart(Map<String, Double> monthlyData) {
         try {
             // Convert month strings to Date objects for the X-axis
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM-yyyy");
             List<Date> months = new ArrayList<>();
             List<Double> consumptions = new ArrayList<>();
 
@@ -136,7 +132,7 @@ public class ChartUtils {
             // Style the chart
             chart.getStyler().setLegendVisible(true);
             chart.getStyler().setChartBackgroundColor(Color.WHITE);
-            chart.getStyler().setSeriesColors(new Color[]{new Color(255, 102, 102)}); // Light red for bars
+            chart.getStyler().setSeriesColors(new Color[]{new Color(254,215,221)});
             chart.getStyler().setXAxisLabelRotation(45); // Rotate x-axis labels to 45 degrees
 
             // Export chart to byte array
@@ -172,7 +168,7 @@ public class ChartUtils {
             // Style chart
             chart.getStyler().setLegendVisible(true);
             chart.getStyler().setChartBackgroundColor(java.awt.Color.WHITE);
-            chart.getStyler().setSeriesColors(new java.awt.Color[]{new java.awt.Color(255, 102, 102)});
+            chart.getStyler().setSeriesColors(new java.awt.Color[]{new Color(254,215,221)});
             chart.getStyler().setXAxisLabelRotation(45);// Light red for consumption
 
             // Convert to byte array

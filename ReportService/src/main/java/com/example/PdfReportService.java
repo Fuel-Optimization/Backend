@@ -16,14 +16,11 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
 
-import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.*;
 
 import com.itextpdf.layout.properties.HorizontalAlignment;
-import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 
 import org.springframework.stereotype.Service;
@@ -34,6 +31,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import static com.example.ChartUtils.*;
+import static com.example.PdfUtils.*;
 
 @Service
 public class PdfReportService {
@@ -44,7 +42,7 @@ public class PdfReportService {
         this.driverRecordRepository = driverRecordRepository;
     }
 
-    public byte[] generateDriverReportWithChart(Driver driver, Manager manager , String groupBy) {
+    public byte[] generateDriverReport(Driver driver, Manager manager , String groupBy) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDocument = new PdfDocument(writer);
@@ -109,14 +107,70 @@ public class PdfReportService {
                     .setHorizontalAlignment(HorizontalAlignment.CENTER));
         }
 
+        Div weeklyChartSection = new Div();
+        weeklyChartSection.setKeepTogether(true)
+                .setMarginBottom(20); // Add spacing after the section
+
+        // Add description for the chart
+        weeklyChartSection.add(new Paragraph("Description:")
+                .setFontSize(12)
+                .setBold()
+                .setMarginBottom(5));
+
+
+
+        String descriptionText = String.format(
+                "This chart represents the weekly average fuel consumption trends. " +
+                        "The highest consumption occurred in week %s with %.2f liters, while the lowest was in week %s with %.2f liters.",
+                getMaxKey(weeklyFuelConsumption), // Week with highest consumption
+                Collections.max(weeklyFuelConsumption.values()), // Highest consumption value
+                getMinKey(weeklyFuelConsumption), // Week with lowest consumption
+                Collections.min(weeklyFuelConsumption.values()) // Lowest consumption value
+        );
+        weeklyChartSection.add(new Paragraph(descriptionText)
+                .setFontSize(10)
+                .setMarginBottom(10));
+        // Add the weekly chart section to the document
+        document.add(weeklyChartSection);
+
         // Weekly Fuel Consumption Comparison Chart
-        addSectionHeader(document, "Weekly Fuel Consumption Comparison Chart");
+        //addSectionHeader(document, "Weekly Fuel Consumption Comparison Chart");
         byte[] comparisonChartBytes = generateFuelConsumptionComparisonChartForWeeks(weeklyFuelConsumption);
         if (comparisonChartBytes != null) {
             document.add(new Image(ImageDataFactory.create(comparisonChartBytes))
                     .setHorizontalAlignment(HorizontalAlignment.CENTER));
         }
+
+        Div weeklyComparisonSection = new Div();
+        weeklyComparisonSection.setKeepTogether(true)
+                .setMarginBottom(20); // Ensure spacing between sections
+
+        // Add a description for the weekly comparison chart
+        weeklyComparisonSection.add(new Paragraph("Description:")
+                .setFontSize(12)
+                .setBold()
+                .setMarginBottom(5));
+
+        double averageWeeklyConsumption = weeklyFuelConsumption.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+        String weeklyDescriptionText = String.format(
+                "This insightful chart presents the weekly average fuel consumption trends, shedding light on significant fluctuations over time. \n" + "The peak fuel consumption occurred during week %s, reaching a substantial %.2f liters, \n" + "highlighting a period of intensive fuel usage. Conversely, the lowest consumption was recorded in week %s, \n" + "with a notably lower average of %.2f liters, indicating improved efficiency or reduced activity during that week.\n",
+                averageWeeklyConsumption, // Overall average
+                getMaxKey(weeklyFuelConsumption), // Week with highest consumption
+                Collections.max(weeklyFuelConsumption.values()), // Highest consumption value
+                getMinKey(weeklyFuelConsumption), // Week with lowest consumption
+                Collections.min(weeklyFuelConsumption.values()) // Lowest consumption value
+        );
+        weeklyComparisonSection.add(new Paragraph(weeklyDescriptionText)
+                .setFontSize(10)
+                .setMarginBottom(10));
+
+
+        // Add the section to the document
+        document.add(weeklyComparisonSection);
+
     }
+
 
     private void generateMonthlySummary(Document document, List<DriverRecord> records) {
         // Monthly Contributions
@@ -131,6 +185,7 @@ public class PdfReportService {
         addSectionHeader(document, "Monthly Fuel Consumption Comparison");
         document.add(createFuelConsumptionComparisonTableForMonths(monthlyFuelConsumption));
 
+        // Add Monthly Fuel Consumption Chart Description
         addSectionHeader(document, "Monthly Fuel Consumption Chart");
         // Monthly Fuel Consumption Chart
         byte[] monthlyChartBytes = generateFuelConsumptionByMonthChart(monthlyFuelConsumption);
@@ -139,13 +194,71 @@ public class PdfReportService {
                     .setHorizontalAlignment(HorizontalAlignment.CENTER));
         }
 
-        addSectionHeader(document, "Monthly Fuel Consumption Comparison Chart");
+        Div monthlyChartSection = new Div();
+        monthlyChartSection.setKeepTogether(true)
+                .setMarginBottom(20); // Add spacing after the section
+
+        // Add description for the chart
+        monthlyChartSection.add(new Paragraph("Description:")
+                .setFontSize(12)
+                .setBold()
+                .setMarginBottom(5));
+
+
+        String monthlyDescriptionText = String.format(
+              "This detailed chart provides an overview of the monthly fuel consumption trends, showing variations over time. \n" +
+                      "The highest recorded fuel consumption was observed in %s, where it reached an impressive %.2f liters, \n" +
+                      "indicating significant fuel usage during that period. On the other hand, the lowest fuel consumption \n" +
+                      "was recorded in %s, with a modest total of just %.2f liters, reflecting a more efficient usage.\n",
+                getMaxKey(monthlyFuelConsumption), // Month with highest consumption
+                Collections.max(monthlyFuelConsumption.values()), // Highest consumption value
+                getMinKey(monthlyFuelConsumption), // Month with lowest consumption
+                Collections.min(monthlyFuelConsumption.values()) // Lowest consumption value
+        );
+        monthlyChartSection.add(new Paragraph(monthlyDescriptionText)
+                .setFontSize(10)
+                .setMarginBottom(10));
+
+
+        // Add the monthly chart section to the document
+        document.add(monthlyChartSection);
+
+
+//        addSectionHeader(document, "Monthly Fuel Consumption Comparison Chart");
         // Monthly Fuel Consumption Comparison Chart
         byte[] comparisonChartBytes = generateFuelConsumptionComparisonChartForMonths(monthlyFuelConsumption);
         if (comparisonChartBytes != null) {
             document.add(new Image(ImageDataFactory.create(comparisonChartBytes))
                     .setHorizontalAlignment(HorizontalAlignment.CENTER));
         }
+
+        Div monthlyComparisonSection = new Div();
+        monthlyComparisonSection.setKeepTogether(true)
+                .setMarginBottom(20); // Ensure spacing between sections
+
+// Add a description for the monthly comparison chart
+        monthlyComparisonSection.add(new Paragraph("Description:")
+                .setFontSize(12)
+                .setBold()
+                .setMarginBottom(5));
+
+        double averageMonthlyConsumption = monthlyFuelConsumption.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+
+        String monthlyDescriptionTextSecondChart = String.format(
+                "This chart illustrates the average fuel consumption for each month. " +
+                        "The overall average fuel consumption during the observed months was %.2f liters. " +
+                        "The highest average fuel consumption was recorded in %s with %.2f liters, and the lowest in %s with %.2f liters.",
+                averageMonthlyConsumption, // Overall average
+                getMaxKey(monthlyFuelConsumption), // Month with highest consumption
+                Collections.max(monthlyFuelConsumption.values()), // Highest consumption value
+                getMinKey(monthlyFuelConsumption), // Month with lowest consumption
+                Collections.min(monthlyFuelConsumption.values()) // Lowest consumption value
+        );
+        monthlyComparisonSection.add(new Paragraph(monthlyDescriptionTextSecondChart)
+                .setFontSize(10)
+                .setMarginBottom(10));
+        // Add the section to the document
+        document.add(monthlyComparisonSection);
     }
 
 
@@ -350,7 +463,7 @@ public class PdfReportService {
         table.setWidth(UnitValue.createPercentValue(50))
                 .setMarginTop(10) // Add top margin
                 .setMarginBottom(50); // Add bottom margin
-        ; // Ensure the table spans the full width
+        // Ensure the table spans the full width
 
         // Add header row
         table.addCell(createHeaderCell("Week"));
@@ -360,17 +473,7 @@ public class PdfReportService {
         return getTable(weeklyData, table);
     }
 
-    private Table getTable(Map<String, Double> weeklyData, Table table) {
-        final int[] rowIndex = {0};
-        weeklyData.forEach((week, avgConsumption) -> {
-            boolean isEvenRow = rowIndex[0] % 2 == 0;
-            table.addCell(createDataCell(week, false, isEvenRow)); // Week name
-            table.addCell(createDataCell(categorizeFuelConsumption(avgConsumption), false, isEvenRow)); // Fuel consumption category
-            rowIndex[0]++;
-        });
 
-        return table;
-    }
 
     private Table createFuelConsumptionComparisonTableForMonths(Map<String, Double> monthlyData) {
         float[] columnWidths = {3, 3}; // Define consistent column widths
@@ -390,31 +493,10 @@ public class PdfReportService {
 
 
 
-    // Help Methods
-    public static String categorizeFuelConsumption(double averageConsumption) {
-        if (averageConsumption >= 0 && averageConsumption < 10) {
-            return "Excellent";
-        } else if (averageConsumption >= 10 && averageConsumption <= 12) {
-            return "Moderate";
-        } else if (averageConsumption > 12 && averageConsumption <= 50) {
-            return "Poor";
-        } else {
-            return "Invalid";
-        }
-    }
-
-
 
 
     // ------------------------------ Last 5 Records Table --------------------------------
 
-    // Help Methods
-    private List<DriverRecord> getLastRecords(List<DriverRecord> records, int limit) {
-        if (records.size() <= limit) {
-            return records;
-        }
-        return records.subList(records.size() - limit, records.size());
-    }
 
     private Table createLastRecordsTable(List<DriverRecord> records) {
         Table table = new Table(new float[]{3, 3, 3, 3, 3});
@@ -446,96 +528,11 @@ public class PdfReportService {
 
 
 
-    private void addDriverInfoSection(Document document, Driver driver, Manager manager) {
-        // Driver Name
-        document.add(new Paragraph("Driver Name: " + driver.getUser().getFirstName() + " "
-                + driver.getUser().getLastName() + " " + driver.getUser().getFamilyName())
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(2));
-
-        // Email
-        document.add(new Paragraph("Email: " + driver.getUser().getEmail())
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(2));
-
-        // Phone
-        document.add(new Paragraph("Phone: " + driver.getUser().getPhoneNumber())
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(2));
-
-        // Experience
-        document.add(new Paragraph("Experience: " + driver.getYearsOfExperience() + " years")
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(2));
-
-        // Manager
-        document.add(new Paragraph("Manager: " + manager.getUser().getFirstName() + " "
-                + manager.getUser().getLastName() + " " + manager.getUser().getFamilyName())
-                .setFontSize(10)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setMarginBottom(10));
-    }
-
-
-    // Help Methods
-    private String mapAttributeToKey(String attribute) {
-        switch (attribute) {
-            case "Engine Speed Contribution":
-                return "engineSpeedContribution";
-            case "Vehicle Speed Contribution":
-                return "vehicleSpeedContribution";
-            case "Accelerator Pedal Value Contribution":
-                return "acceleratorPedalValueContribution";
-            case "Intake Air Pressure Contribution":
-                return "intakeAirPressureContribution";
-            case "Acceleration Speed Longitudinal Contribution":
-                return "accelerationSpeedLongitudinalContribution";
-            case "Minimum Indicated Engine Torque Contribution":
-                return "minimumIndicatedEngineTorqueContribution";
-            case "Indication of Brake Switch On/Off Contribution":
-                return "indicationOfBrakeSwitchOnOffContribution";
-            case "Converter Clutch Contribution":
-                return "converterClutchContribution";
-            case "Engine Idle Target Speed Contribution":
-                return "engineIdleTargetSpeedContribution";
-            case "Current Spark Timing Contribution":
-                return "currentSparkTimingContribution";
-            case "Master Cylinder Pressure Contribution":
-                return "masterCylinderPressureContribution";
-            case "Torque of Friction Contribution":
-                return "torqueOfFrictionContribution";
-            case "Engine in Fuel Cut-Off Contribution":
-                return "engineInFuelCutOffContribution";
-            case "Current Gear Contribution":
-                return "currentGearContribution";
-            case "Calculated Road Gradient Contribution":
-                return "calculatedRoadGradientContribution";
-            case "Long Term Fuel Trim Bank1 Contribution":
-                return "longTermFuelTrimBank1Contribution";
-            default:
-                return "";
-        }
-    }
 
 
 
-    // Help Methods
-    private void addSectionHeader(Document document, String title) {
-        document.add(new Paragraph(title)
-                .setTextAlignment(TextAlignment.LEFT)
-                .setFontSize(12)
-                .setBold()
-                .setFontColor(ColorConstants.BLACK)
-                .setMarginBottom(5));
-        document.add(new LineSeparator(new SolidLine(1))
-                .setStrokeColor(ColorConstants.YELLOW)
-                .setMarginBottom(2)
-                .setMarginTop(2)); // Reduced top margin for better alignment
-    }
+
+
 
 
     // Help Methods
@@ -641,45 +638,9 @@ public class PdfReportService {
     }
 
 
-    // Help Methods
-    private Cell createHeaderCell(String content) {
-        return new Cell()
-                .add(new Paragraph(content)
-                        .setBold()
-                        .setFontSize(10)
-                        .setFontColor(ColorConstants.WHITE))
-                .setBackgroundColor(ColorPalette.HEADER_BACKGROUND) // Custom header color
-                .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(5)
-                .setBorder(Border.NO_BORDER);
-    }
 
 
-    // Help Methods
-    private Cell createDataCell(String content, boolean isFuelConsumption, boolean isEvenRow) {
-        Cell cell = new Cell()
-                .add(new Paragraph(content)
-                        .setFontSize(9)
-                        .setFontColor(ColorConstants.BLACK))
-                .setTextAlignment(TextAlignment.CENTER)
-                .setPadding(5)
-                .setBorder(Border.NO_BORDER);
 
-        // Apply background color
-        if (isFuelConsumption) {
-            // Highlight fuel consumption cells with a specific color
-            cell.setBackgroundColor(ColorPalette.LIGHT_RED); // Light orange
-        } else {
-            // Alternating row colors for non-highlighted cells
-            if (isEvenRow) {
-                cell.setBackgroundColor(ColorPalette.LIGHT_GRAY_FOR_EVEN_ROWS); // Light gray for even rows
-            } else {
-                cell.setBackgroundColor(ColorConstants.WHITE); // White for odd rows
-            }
-        }
-
-        return cell;
-    }
 
 
 }

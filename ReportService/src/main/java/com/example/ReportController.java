@@ -2,32 +2,24 @@ package com.example;
 
 import com.example.model.Repository.DriverRepository;
 import com.example.model.model.Driver;
-import com.example.model.model.DriverRecord;
 import com.example.model.model.Manager;
-import com.example.model.model.User;
-import com.example.model.service.DriverService;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    private final DriverService driverService;
     private final PdfReportService pdfReportService;
     private final DriverRepository driverRepository;
 
-    public ReportController(DriverService driverService, PdfReportService pdfReportService, DriverRepository driverRepository) {
-        this.driverService = driverService;
+    public ReportController(PdfReportService pdfReportService, DriverRepository driverRepository) {
         this.pdfReportService = pdfReportService;
         this.driverRepository = driverRepository;
     }
@@ -40,7 +32,7 @@ public class ReportController {
         Manager manager =driver.getManager();
 
         // Generate the report
-        byte[] pdfBytes = pdfReportService.generateDriverReportWithChart(driver, manager , groupBy);
+        byte[] pdfBytes = pdfReportService.generateDriverReport(driver, manager , groupBy);
 
         // Create a dynamic file name: [DriverName]_[dd-MM-yyyy].pdf
         String driverName = driver.getUser().getFirstName() + "_" + driver.getUser().getLastName() +  "_" + driver.getUser().getFamilyName();
