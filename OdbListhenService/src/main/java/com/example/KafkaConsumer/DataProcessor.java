@@ -48,13 +48,13 @@
 //    }
 //
 //    private void generateAndProcessData() {
-//        LocalDateTime startDate = LocalDateTime.of(2024, 9, 1, 0, 0);
-//        LocalDateTime endDate = LocalDateTime.now();
+//        LocalDateTime startDate = LocalDateTime.of(2024, 12, 1, 0, 0);
+//        LocalDateTime endDate = LocalDateTime.of(2025, 1, 15, 23, 59);
 //        List<LocalDateTime> allDays = getAllDaysBetween(startDate, endDate);
 //
 //        for (LocalDateTime day : allDays) {
-//            for (int driverId = 11; driverId <=20 ; driverId++) {
-//                for (int recordCount = 0; recordCount < 3; recordCount++) {
+//            for (int driverId = 1; driverId <=20 ; driverId++) {
+//                for (int recordCount = 0; recordCount < 5; recordCount++) {
 //                    // Generate mock data
 //                    ModelAttributes mockData = generateMockData();
 //
@@ -76,9 +76,8 @@
 //            ModelAttributes modelAttributes = modelAttributesMapper.map(data);
 //            Map<String, Object> predictionResponse = predictionService.getPrediction(modelAttributes);
 //            DriverRecord driverRecord = driverRecordMapper.map(data, modelAttributes, predictionResponse);
-//
 //            driverRecordService.saveDriverRecord(driverRecord);
-////            System.out.println("Saved to database: " + driverRecord);
+//
 //        } catch (Exception e) {
 //            System.err.println("Error processing data: " + e.getMessage());
 //        }

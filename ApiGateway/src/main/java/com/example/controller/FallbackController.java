@@ -12,6 +12,11 @@ public class FallbackController {
     public ResponseEntity<String> userFallback() {
         return ResponseEntity.ok("User Service is currently unavailable. Please try again later.");
     }
+    @GetMapping("/fallback/search")
+    public ResponseEntity<String> search() {
+        return ResponseEntity.ok("Searching Service is currently unavailable. Please try again later.");
+    }
+
 
 
     @GetMapping("/fallback/unmatched")
