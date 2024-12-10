@@ -5,6 +5,7 @@ import com.example.model.model.ModelAttributes;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,10 @@ public class DriverRecordMapper {
 
         // Set metadata
         driverRecord.setCarId((String) data.get("Car_ID"));
-        driverRecord.setDriverId(parseInt((String) data.get("Driver_ID")));
+        int driverId = data.get("Driver_ID") instanceof Integer
+                ? (Integer) data.get("Driver_ID")
+                : Integer.parseInt((String) data.get("Driver_ID"));
+        driverRecord.setDriverId(driverId);
         setTime(driverRecord, data);
 
         return driverRecord;
@@ -110,9 +114,13 @@ public class DriverRecordMapper {
 
     private void setTime(DriverRecord driverRecord, Map<String, Object> data) {
         try {
-            String dateString = (String) data.get("Date");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dateString = data.get("Date").toString();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+
             driverRecord.setTime(dateFormat.parse(dateString));
+
+
         } catch (Exception e) {
             System.err.println("Error parsing date: " + e.getMessage());
         }
