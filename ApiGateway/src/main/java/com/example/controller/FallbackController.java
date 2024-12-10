@@ -16,6 +16,10 @@ public class FallbackController {
     public ResponseEntity<String> search() {
         return ResponseEntity.ok("Searching Service is currently unavailable. Please try again later.");
     }
+    @GetMapping("/fallback/report")
+    public ResponseEntity<String> report() {
+        return ResponseEntity.ok("Report Service is currently unavailable. Please try again later.");
+    }
 
 
 

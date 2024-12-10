@@ -26,6 +26,12 @@ public class GatewayConfiguration {
                                         .setFallbackUri("forward:/fallback/search")
                         .setStatusCodes(Set.of("404"))))
                         .uri("lb://SEARCHSERVICE"))
+                .route("report-service", r -> r.path("/reports/**")
+                        .filters(f -> f
+                                .circuitBreaker(c -> c.setName("userCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/report")
+                                        .setStatusCodes(Set.of("404"))))
+                        .uri("lb://REPORTSERVICE"))
                 .route("unmatched-route", r -> r
                         .path("/**") // Matches any request
                         .filters(f -> f
