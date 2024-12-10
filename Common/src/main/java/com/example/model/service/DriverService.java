@@ -1,14 +1,12 @@
 package com.example.model.service;
-
 import com.example.model.Repository.DriverRepository;
 import com.example.model.dto.DriverDto;
 import com.example.model.dto.UserDTO;
 import com.example.model.model.Driver;
-
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 public class DriverService {
@@ -44,6 +42,11 @@ public class DriverService {
         userDTO.setNationalid(driver.getUser().getNationalid());
         driverDTO.setUser(userDTO);
         return driverDTO;
+    }
+
+    public Driver getDriverById(Long driverId) {
+        return driverRepository.findById(driverId)
+                .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId));
     }
 
 }
