@@ -8,19 +8,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FallbackController {
 
-    @GetMapping("/fallback/users")
-    public ResponseEntity<String> userFallback() {
-        return ResponseEntity.ok("User Service is currently unavailable. Please try again later.");
-    }
-    @GetMapping("/fallback/search")
-    public ResponseEntity<String> search() {
-        return ResponseEntity.ok("Searching Service is currently unavailable. Please try again later.");
-    }
-    @GetMapping("/fallback/report")
-    public ResponseEntity<String> report() {
+    @GetMapping("/fallback/reports")
+    public ResponseEntity<String> reportfallback() {
         return ResponseEntity.ok("Report Service is currently unavailable. Please try again later.");
     }
 
+    @GetMapping("/fallback/search")
+    public ResponseEntity<String> searchfallback() {
+        return ResponseEntity.ok("Report Service is currently unavailable. Please try again later.");
+    }
 
 
     @GetMapping("/fallback/unmatched")
