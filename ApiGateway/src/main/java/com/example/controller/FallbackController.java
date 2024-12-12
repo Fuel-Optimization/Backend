@@ -15,7 +15,7 @@ public class FallbackController {
 
     @GetMapping("/fallback/search")
     public ResponseEntity<String> searchfallback() {
-        return ResponseEntity.ok("Report Service is currently unavailable. Please try again later.");
+        return ResponseEntity.ok("Search Service is currently unavailable. Please try again later.");
     }
 
 
