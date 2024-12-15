@@ -3,7 +3,12 @@ package com.example.controller;
 import com.example.jwt.JwtUtil;
 import com.example.config.UserService;
 import com.example.model.model.User;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +19,12 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final RestTemplate restTemplate;
 
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
+    public AuthController(UserService userService, JwtUtil jwtUtil, RestTemplate restTemplate) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.restTemplate = restTemplate;
     }
 
     @PostMapping("/register")
@@ -38,11 +45,37 @@ public class AuthController {
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", accessToken);
             response.put("refreshToken", refreshToken);
-
+//sendRequestToReportService(accessToken);
             return response;
         }
         throw new RuntimeException("Invalid username or password");
     }
+//
+//    private void sendRequestToReportService(String accessToken) {
+//        String reportServiceUrl = "http://localhost:8080/reports/driver/3?groupBy=month"; // Replace with actual REPORTSERVICE endpoint
+//
+//        // Prepare headers with Authorization token
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + accessToken);
+//
+//        // Prepare request entity
+//        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
+//
+//        try {
+//            // Send request to REPORTSERVICE
+//            ResponseEntity<String> response = restTemplate.exchange(
+//                    reportServiceUrl,
+//                    HttpMethod.GET,
+//                    requestEntity,
+//                    String.class
+//            );
+//
+//
+//        } catch (Exception e) {
+//            // Handle errors gracefully
+////            System.err.println("Error sending request to REPORTSERVICE: " + e.getMessage());
+//        }
+//    }
 }
 
 class RegisterRequest {

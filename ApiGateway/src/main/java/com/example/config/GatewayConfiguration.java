@@ -22,7 +22,7 @@ public class GatewayConfiguration {
                                 .circuitBreaker(c -> c.setName("userCircuitBreaker")
                                         .setFallbackUri("forward:/fallback/reports"))
                                 .retry(config -> config.setRetries(5) // Increase the number of retries
-                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.SERVICE_UNAVAILABLE) // Include 503
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.UNAUTHORIZED) // Include 503
                                         .setBackoff(Duration.ofMillis(100), Duration.ofSeconds(2), 2, false)))
                                 .uri("lb://REPORTSERVICE"))
                 .route("search-service", r -> r.path("/search/**")
