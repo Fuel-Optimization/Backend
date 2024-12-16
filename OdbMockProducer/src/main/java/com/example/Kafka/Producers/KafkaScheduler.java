@@ -31,6 +31,7 @@ public class KafkaScheduler {
     }
 
     @Scheduled(fixedRate = 10000)
+    //@Scheduled(fixedRate = 60000) for 1 minute
     public void sendMockData() {
         for (int driverId = 1; driverId <= 20; driverId++) {
             // Create mock data for each driver

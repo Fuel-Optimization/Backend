@@ -5,6 +5,7 @@ import com.example.model.Repository.DriverRepository;
 import com.example.model.model.Alert;
 import com.example.model.model.Driver;
 import com.example.model.model.Manager;
+import jakarta.annotation.PostConstruct;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,17 @@ public class RedisService {
         this.emailService = emailService;
     }
 
+    @PostConstruct
+    public void clearRedisOnStartup() {
+        try {
+            // Deletes all keys in Redis
+            redisTemplate.getConnectionFactory().getConnection().flushDb();
+            System.out.println("Redis database cleared on application startup.");
+        } catch (Exception e) {
+            System.err.println("Failed to clear Redis database: " + e.getMessage());
+        }
+    }
+
      public void saveFuelConsumption(int driverId, double fuelConsumption) {
         String key = "fuel:consumption:" + driverId;
         long timestamp = Instant.now().toEpochMilli();
@@ -36,6 +48,7 @@ public class RedisService {
         Long recordCount = redisTemplate.opsForZSet().zCard(key);
         if (recordCount != null && recordCount >= 5) {
             processRecordsForKey(driverId, key);
+            redisTemplate.opsForZSet().removeRange(key, 0, 4);
         }
     }
 
