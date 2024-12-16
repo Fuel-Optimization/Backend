@@ -41,7 +41,6 @@ public class AuthController {
             String accessToken = jwtUtil.generateToken(user);
             String refreshToken = jwtUtil.generateRefreshToken(user);
 
-            // Prepare response map
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", accessToken);
             response.put("refreshToken", refreshToken);
@@ -50,32 +49,6 @@ public class AuthController {
         }
         throw new RuntimeException("Invalid username or password");
     }
-//
-//    private void sendRequestToReportService(String accessToken) {
-//        String reportServiceUrl = "http://localhost:8080/reports/driver/3?groupBy=month"; // Replace with actual REPORTSERVICE endpoint
-//
-//        // Prepare headers with Authorization token
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + accessToken);
-//
-//        // Prepare request entity
-//        HttpEntity<String> requestEntity = new HttpEntity<>(null, headers);
-//
-//        try {
-//            // Send request to REPORTSERVICE
-//            ResponseEntity<String> response = restTemplate.exchange(
-//                    reportServiceUrl,
-//                    HttpMethod.GET,
-//                    requestEntity,
-//                    String.class
-//            );
-//
-//
-//        } catch (Exception e) {
-//            // Handle errors gracefully
-////            System.err.println("Error sending request to REPORTSERVICE: " + e.getMessage());
-//        }
-//    }
 }
 
 class RegisterRequest {

@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
+//@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/reports")
+
 public class ReportController {
 
     private final PdfReportService pdfReportService;
