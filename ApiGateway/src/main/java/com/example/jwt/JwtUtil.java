@@ -41,7 +41,7 @@ public class JwtUtil {
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole());
-        return createToken(claims, user.getEmail(), 1000 * 60 * 2); // 2 minutes
+        return createToken(claims, user.getEmail(), 1000 * 60 * 15); // 15 minutes
     }
 
     // Generate a refresh token
