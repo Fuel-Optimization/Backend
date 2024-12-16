@@ -18,4 +18,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             @Param("driverId") Long driverId,
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
+    @Query("SELECT dr FROM DriverRecord dr WHERE dr.driverId = :driverId")
+    List<DriverRecord> findRecordsByDriverId(Long driverId);
 }
