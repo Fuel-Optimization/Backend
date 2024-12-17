@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -20,24 +21,60 @@ public class chartController {
         this.chartService = chartService;
     }
 
-    @GetMapping("/average-fuel-consumption-manager-date")
+    @GetMapping("/average-fuel-consumption-top5-manager")
     public Map<Integer, Double> getAverageFuelConsumptionManagerDate(
             @RequestParam Long managerId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
 
-        // Convert String to Date
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date start = formatter.parse(startDate);
-        Date end = formatter.parse(endDate);
-        System.out.println(start +" "+ end);
+        Date start = null;
+        Date end = null;
 
-        return chartService.getAverageFuelConsumptionByManagersDate(managerId,start,end);
+        Pair<Date,Date> datePair =chartService.setDefaultDates(startDate,endDate);
+        start = datePair.getKey();
+        end = datePair.getValue();
+
+        System.out.println(start+" "+end);
+
+        return chartService.getAverageFuelConsumptionByTop5ForManager(managerId,start,end);
+    }
+
+    @GetMapping("/average-fuel-consumption-driver")
+    public  Map<String, Double> getAverageFuelConsumptionManager(
+            @RequestParam Long managerId,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
+
+        Date start = null;
+        Date end = null;
+
+        Pair<Date,Date> datePair =chartService.setDefaultDates(startDate,endDate);
+        start = datePair.getKey();
+        end = datePair.getValue();
+
+        System.out.println(start+" "+end);
+
+        return chartService.getAverageFuelConsumptionByManagers(managerId, start, end);
     }
 
     @GetMapping("/average-fuel-consumption-classification")
-    public  Map<Integer, Pair<Double, String>> getAverageFuelConsumptionManagerClassification(
-            @RequestParam Long managerId){
-        return chartService.getAverageFuelConsumptionByManagers(managerId);
+    public  Map<String, Integer> getAverageFuelConsumptionManagerClassification(
+            @RequestParam Long managerId,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
+            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
+        Date start = null;
+        Date end = null;
+
+        Pair<Date,Date> datePair =chartService.setDefaultDates(startDate,endDate);
+        start = datePair.getKey();
+        end = datePair.getValue();
+
+        System.out.println(start+" "+end);
+        return chartService.getAverageFuelConsumptionClassificationByManagers(managerId, start, end);
+    }
+
+    @GetMapping("/grouped")
+    public Map<String, Object> getGroupedConsumption() {
+        return chartService.getGroupedConsumption();
     }
 }
