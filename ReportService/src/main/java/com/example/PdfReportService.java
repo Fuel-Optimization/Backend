@@ -48,10 +48,8 @@ public class PdfReportService {
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
-            // Add Driver Information
             addDriverInfoSection(document, driver, manager);
 
-            // Fetch Driver Records
             List<DriverRecord> records = driverRecordRepository.findByDriverId(driver.getId());
             if (records == null || records.isEmpty()) {
                 document.add(new Paragraph("No records found for this driver.")
@@ -154,20 +152,23 @@ public class PdfReportService {
         double averageWeeklyConsumption = weeklyFuelConsumption.values().stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
 
         String weeklyDescriptionText = String.format(
-                "This insightful chart presents the weekly average fuel consumption trends, shedding light on significant fluctuations over time. \n" + "The peak fuel consumption occurred during week %s, reaching a substantial %.2f liters, \n" + "highlighting a period of intensive fuel usage. Conversely, the lowest consumption was recorded in week %s, \n" + "with a notably lower average of %.2f liters, indicating improved efficiency or reduced activity during that week.\n",
-                averageWeeklyConsumption, // Overall average
+                "This insightful chart presents the weekly average fuel consumption trends, shedding light on significant fluctuations over time. \n" +
+                        "The peak fuel consumption occurred during week %s, reaching a substantial %.2f liters, \n" +
+                        "highlighting a period of intensive fuel usage. Conversely, the lowest consumption was recorded in week %s, \n" +
+                        "with a notably lower average of %.2f liters, indicating improved efficiency or reduced activity during that week.\n",
                 getMaxKey(weeklyFuelConsumption), // Week with highest consumption
                 Collections.max(weeklyFuelConsumption.values()), // Highest consumption value
                 getMinKey(weeklyFuelConsumption), // Week with lowest consumption
                 Collections.min(weeklyFuelConsumption.values()) // Lowest consumption value
         );
+
         weeklyComparisonSection.add(new Paragraph(weeklyDescriptionText)
                 .setFontSize(10)
                 .setMarginBottom(10));
 
-
-        // Add the section to the document
+// Add the section to the document
         document.add(weeklyComparisonSection);
+
 
     }
 
@@ -523,17 +524,6 @@ public class PdfReportService {
     }
 
     // ------------------------------ Last 5 Records Table End--------------------------------
-
-
-
-
-
-
-
-
-
-
-
 
     // Help Methods
     private Map<String, Map<String, Double>> calculateMonthlyContributions(List<DriverRecord> records) {

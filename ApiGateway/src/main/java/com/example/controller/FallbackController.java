@@ -1,31 +1,30 @@
 package com.example.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/fallback")
 public class FallbackController {
 
-    @GetMapping("/fallback/users")
-    public ResponseEntity<String> userFallback() {
-        return ResponseEntity.ok("User Service is currently unavailable. Please try again later.");
-    }
-    @GetMapping("/fallback/search")
-    public ResponseEntity<String> search() {
-        return ResponseEntity.ok("Searching Service is currently unavailable. Please try again later.");
-    }
-    @GetMapping("/fallback/report")
-    public ResponseEntity<String> report() {
-        return ResponseEntity.ok("Report Service is currently unavailable. Please try again later.");
+    @GetMapping("/reports")
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String reportsFallback() {
+        return "Report service is unavailable. Please try again later.";
     }
 
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String searchFallback() {
+        return "Search service is unavailable. Please try again later.";
+    }
 
-
-    @GetMapping("/fallback/unmatched")
-    public ResponseEntity<String> globalFallback() {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body("The requested route is unavailable or does not exist. Please check the URL.");
+    @GetMapping("/unmatched")
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String unmatchedFallback() {
+        return "The requested service is unavailable. Please check the URL and try again.";
     }
 }

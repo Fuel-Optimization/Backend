@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.errorhandler.DriverNotFoundException;
+import com.example.errorhandler.ReportGenerationException;
 import com.example.model.Repository.DriverRepository;
 import com.example.model.model.Driver;
 import com.example.model.model.Manager;
@@ -26,29 +28,42 @@ public class ReportController {
 
     @GetMapping("/driver/{driverId}")
     public ResponseEntity<byte[]> generateDriverReport(@PathVariable Long driverId, @RequestParam String groupBy) {
-        // Fetch driver and manager data
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new RuntimeException("Driver not found"));
-        Manager manager =driver.getManager();
+        try {
+            // Fetch driver and manager data
+            Driver driver = driverRepository.findById(driverId)
+                    .orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + driverId));
 
-        // Generate the report
-        byte[] pdfBytes = pdfReportService.generateDriverReport(driver, manager , groupBy);
+            Manager manager = driver.getManager();
+            if (manager == null) {
+                throw new DriverNotFoundException("Manager not found for driver ID: " + driverId);
+            }
 
-        // Create a dynamic file name: [DriverName]_[dd-MM-yyyy].pdf
-        String driverName = driver.getUser().getFirstName() + "_" + driver.getUser().getLastName() +  "_" + driver.getUser().getFamilyName();
-        String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-        String fileName = driverName + "_" + currentDate + ".pdf";
+            // Generate the report
+            byte[] pdfBytes = pdfReportService.generateDriverReport(driver, manager, groupBy);
 
-        // Set Content-Disposition header
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition
-                .builder("attachment")
-                .filename(fileName)
-                .build());
+            // Dynamic file name
+            String driverName = driver.getUser().getFirstName() + "_" +
+                    driver.getUser().getLastName() + "_" +
+                    driver.getUser().getFamilyName();
+            String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String fileName = driverName + "_" + currentDate + ".pdf";
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(pdfBytes);
+            // Set headers
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDisposition(ContentDisposition
+                    .builder("attachment")
+                    .filename(fileName)
+                    .build());
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+
+        } catch (DriverNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ReportGenerationException("Failed to generate driver report", e);
+        }
     }
 }

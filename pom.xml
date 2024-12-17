@@ -23,7 +23,7 @@
 	</developers>
     <modules>
         <module>OdbMockProducer</module>
-		<module>ApiGateway</module>
+
 		<module>Common</module>
 		<module>UserManagementService</module>
 		<module>OdbListhenService</module>
@@ -31,7 +31,8 @@
 		<module>EurekaServer</module>
 		<module>ChartsService</module>
         <module>SearchingService</module>
-    </modules>
+		<module>APIGateway</module>
+	</modules>
     <scm>
 		<connection/>
 		<developerConnection/>

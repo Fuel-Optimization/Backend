@@ -116,7 +116,8 @@ public class DriverRecordMapper {
         try {
             String dateString = data.get("Date").toString();
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
             driverRecord.setTime(dateFormat.parse(dateString));
 

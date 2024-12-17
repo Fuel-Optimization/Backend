@@ -6,34 +6,33 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 
-import java.util.Set;
+import java.time.Duration;
 
 @Configuration
 public class GatewayConfiguration {
+    private static final String ApiGateWayAuthToken = "ioj23uheou2982ns132423dq!@#123p82nu218";
+
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+
         return builder.routes()
-                .route("user-service", r -> r.path("/users/**")
-                        .filters(f -> f
-                                .circuitBreaker(c -> c.setName("userCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/users")
-                                        .setStatusCodes(Set.of("404"))))
-                        .uri("lb://USERSERVICE"))
-                .route("search-service", r -> r.path("/search/**")
-                        .filters(f -> f
-                                .circuitBreaker(c -> c.setName("userCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/search")
-                        .setStatusCodes(Set.of("404"))))
-                        .uri("lb://SEARCHSERVICE"))
                 .route("report-service", r -> r.path("/reports/**")
-                        .filters(f -> f
+                        .filters(f -> f.addRequestHeader("X-Gateway-Token", ApiGateWayAuthToken)
                                 .circuitBreaker(c -> c.setName("userCircuitBreaker")
-                                        .setFallbackUri("forward:/fallback/report")
-                                        .setStatusCodes(Set.of("404"))))
-                        .uri("lb://REPORTSERVICE"))
+                                        .setFallbackUri("forward:/fallback/reports"))
+                                .retry(config -> config.setRetries(5) // Increase the number of retries
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.SERVICE_UNAVAILABLE, HttpStatus.UNAUTHORIZED) // Include 503
+                                        .setBackoff(Duration.ofMillis(100), Duration.ofSeconds(2), 2, false)))
+                                .uri("lb://REPORTSERVICE"))
+                .route("search-service", r -> r.path("/search/**")
+                        .filters(f -> f.addRequestHeader("X-Gateway-Token", ApiGateWayAuthToken)
+                                .circuitBreaker(c -> c.setName("userCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/search"))
+                                .retry(config -> config.setRetries(3).setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)))
+                        .uri("lb://SEARCHSERVICE"))
                 .route("unmatched-route", r -> r
-                        .path("/**") // Matches any request
+                        .path("/**")
                         .filters(f -> f
                                 .rewritePath("/.*", "/fallback/unmatched")) // Rewrite to global fallback
                         .uri("http://localhost:8080")) // Forward to local server

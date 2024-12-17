@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -104,4 +105,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
     @Query(value = "SELECT YEAR(f.time) AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
             "FROM driver_record f GROUP BY period ORDER BY period", nativeQuery = true)
     List<Object[]> getYearlyConsumption();
+    @Query("SELECT dr FROM DriverRecord dr WHERE dr.driverId = :driverId")
+    List<DriverRecord> findRecordsByDriverId(Long driverId);
 }
