@@ -32,7 +32,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
 
     @Query("SELECT f.driverId, AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
             "FROM DriverRecord f " +
-<<<<<<< HEAD
             "JOIN Driver d ON f.driverId = d.id " +
             "WHERE d.manager.id = :managerId AND f.time BETWEEN :startDate AND :endDate " +
             "GROUP BY f.driverId")
@@ -47,12 +46,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             "GROUP BY period" +
             "ORDER BY period", nativeQuery = true)
     List<Object[]> getWeeklyConsumption();
-=======
-            "JOIN Driver d ON f.driverId = d.id  " +
-            "WHERE d.manager.id = :managerId " +
-            "GROUP BY f.driverId " +
-            "ORDER BY avgFuelConsumption")
-    List<Object[]> findAverageFuelConsumptionByDriverAndManager(Long managerId);
 
     @Query(value = "select AVG(dr.engine_speed_contribution) AS engineSpeedContribution, " +
         "AVG(dr.vehicle_speed_contribution) AS vehicleSpeedContribution, " +
@@ -101,8 +94,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate
     );
-
->>>>>>> 0a55a90948c206162388bbe06e07d6c53ffd45d8
 
     // Monthly Grouping
     @Query(value = "SELECT DATE_FORMAT(f.time, '%Y-%m') AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption" +
