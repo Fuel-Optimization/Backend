@@ -22,9 +22,9 @@ public class DriverController {
         this.driverRepository = driverRepository;
     }
 
-    @GetMapping
-    public List<Map<String, Object>> getDrivers() {
-        List<Driver> drivers = driverRepository.findAll();
+    @GetMapping("/{id}")
+    public List<Map<String, Object>> getDrivers(@PathVariable Long id) {
+        List<Driver> drivers = driverRepository.findDriversByManagerId(id);
         return driverService.getDriverDetails(drivers);
     }
 

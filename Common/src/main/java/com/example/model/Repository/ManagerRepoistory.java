@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ManagerRepoistory extends JpaRepository<Manager, Long> {
     Optional<Manager> findById(Long id);
-
+    Manager findByUserId(Long userId);
 }
