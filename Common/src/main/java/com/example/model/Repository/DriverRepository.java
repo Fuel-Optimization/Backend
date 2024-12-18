@@ -19,5 +19,6 @@ public interface DriverRepository extends JpaRepository<Driver, Long> {
      @Query("SELECT d FROM Driver d JOIN d.user u WHERE u.nationalid = :nationalId")
      List<Driver> findByNationalId(@Param("nationalId") String nationalId);
 
-
+     @Query("SELECT d FROM Driver d WHERE d.manager.id = :managerId")
+     List<Driver> findDriversByManagerId(@Param("managerId") Long managerId);
 }
