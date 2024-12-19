@@ -22,6 +22,12 @@ public class FallbackController {
         return "Search service is unavailable. Please try again later.";
     }
 
+    @GetMapping("/charts")
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public String chartsFallback() {
+        return "Charts service is unavailable. Please try again later.";
+    }
+
     @GetMapping("/unmatched")
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public String unmatchedFallback() {

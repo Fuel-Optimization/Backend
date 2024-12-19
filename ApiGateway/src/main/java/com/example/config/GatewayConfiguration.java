@@ -31,6 +31,13 @@ public class GatewayConfiguration {
                                         .setFallbackUri("forward:/fallback/search"))
                                 .retry(config -> config.setRetries(3).setStatuses(HttpStatus.INTERNAL_SERVER_ERROR)))
                         .uri("lb://SEARCHSERVICE"))
+                .route("charts-service", r -> r.path("/charts/**")
+                        .filters(f -> f.addRequestHeader("X-Gateway-Token", ApiGateWayAuthToken)
+                                .circuitBreaker(c -> c.setName("userCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/charts"))
+                                .retry(config -> config.setRetries(5)
+                                        .setStatuses(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.SERVICE_UNAVAILABLE)))
+                        .uri("lb://CHARTSSERVICE"))
                 .route("unmatched-route", r -> r
                         .path("/**")
                         .filters(f -> f

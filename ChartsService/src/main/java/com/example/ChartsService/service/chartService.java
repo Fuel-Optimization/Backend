@@ -5,6 +5,7 @@ import com.example.ChartsService.dto.DriverBehaviorDTO;
 import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
 import com.example.model.Repository.DriverRecordRepository;
 import com.example.model.Repository.DriverRepository;
+import com.example.model.Repository.UserRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,16 @@ import java.util.*;
 public class chartService {
     private DriverRecordRepository driverRecordRepository;
     private  DriverRepository driverRepository;
+    private UserRepository userRepository;
 
-    public chartService(DriverRecordRepository driverRecordRepository, DriverRepository driverRepository) {
+    public chartService(DriverRecordRepository driverRecordRepository, DriverRepository driverRepository,UserRepository userRepository) {
         this.driverRecordRepository = driverRecordRepository;
         this.driverRepository = driverRepository;
+        this.userRepository = userRepository;
+    }
+
+    public String getUserName(String email){
+        return userRepository.findByEmail(email).get().getFirstName();
     }
 
     public Map<Integer, Double> getAverageFuelConsumptionByTop5ForManager(Long managerId, Date startDate, Date endDate) {

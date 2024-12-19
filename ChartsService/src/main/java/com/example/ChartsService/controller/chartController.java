@@ -6,10 +6,7 @@ import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
 import com.example.ChartsService.service.chartService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,11 +16,17 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/charts")
 public class chartController {
     private chartService chartService;
 
     public chartController(com.example.ChartsService.service.chartService chartService) {
         this.chartService = chartService;
+    }
+
+    @GetMapping("/firstName/{email}")
+    public String getFirstName(@PathVariable String email){
+        return chartService.getUserName(email);
     }
 
     @GetMapping("/average-fuel-consumption-top5-manager")
