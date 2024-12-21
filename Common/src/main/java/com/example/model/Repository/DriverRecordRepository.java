@@ -22,6 +22,16 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
     @Query(value = "SELECT f.driver_id, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
             "FROM driver_record f " +
             "JOIN drivers d ON f.driver_id = d.id " +
+            "WHERE d.manager_id = :managerId " +
+            "GROUP BY f.driver_id " +
+            "ORDER BY avgFuelConsumption " +
+            "LIMIT 5", nativeQuery = true)
+    List<Object[]> findAverageFuelConsumptionByTop5ForManagerNoDate(
+            @Param("managerId") Long managerId);
+
+    @Query(value = "SELECT f.driver_id, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
+            "FROM driver_record f " +
+            "JOIN drivers d ON f.driver_id = d.id " +
             "WHERE d.manager_id = :managerId AND f.time BETWEEN :startDate AND :endDate " +
             "GROUP BY f.driver_id " +
             "ORDER BY avgFuelConsumption " +

@@ -2,6 +2,7 @@ package com.example.ChartsService.controller;
 
 import com.example.ChartsService.dto.AverageContributionsDTO;
 import com.example.ChartsService.dto.DriverBehaviorDTO;
+import com.example.ChartsService.dto.DriverInfoDTO;
 import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
 import com.example.ChartsService.service.chartService;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,9 +25,9 @@ public class chartController {
         this.chartService = chartService;
     }
 
-    @GetMapping("/firstName/{email}")
-    public String getFirstName(@PathVariable String email){
-        return chartService.getUserName(email);
+    @GetMapping("/top5drivers")
+    public List<DriverInfoDTO> getTop5driversNoDate(@RequestParam Long managerId){
+        return chartService.getAverageFuelConsumptionByTop5ForManagerNoDate(managerId);
     }
 
     @GetMapping("/average-fuel-consumption-top5-manager")

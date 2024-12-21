@@ -2,10 +2,11 @@ package com.example.ChartsService.service;
 
 import com.example.ChartsService.dto.AverageContributionsDTO;
 import com.example.ChartsService.dto.DriverBehaviorDTO;
+import com.example.ChartsService.dto.DriverInfoDTO;
 import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
 import com.example.model.Repository.DriverRecordRepository;
 import com.example.model.Repository.DriverRepository;
-import com.example.model.Repository.UserRepository;
+import com.example.model.model.User;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +18,39 @@ import java.util.*;
 public class chartService {
     private DriverRecordRepository driverRecordRepository;
     private  DriverRepository driverRepository;
-    private UserRepository userRepository;
 
-    public chartService(DriverRecordRepository driverRecordRepository, DriverRepository driverRepository,UserRepository userRepository) {
+    public chartService(DriverRecordRepository driverRecordRepository, DriverRepository driverRepository) {
         this.driverRecordRepository = driverRecordRepository;
         this.driverRepository = driverRepository;
-        this.userRepository = userRepository;
     }
 
-    public String getUserName(String email){
-        return userRepository.findByEmail(email).get().getFirstName();
+    public List<DriverInfoDTO> getAverageFuelConsumptionByTop5ForManagerNoDate(Long managerId) {
+        List<Object[]> results = driverRecordRepository.findAverageFuelConsumptionByTop5ForManagerNoDate(managerId);
+
+//        Map<Integer, Double> fuelConsumptionMap = new LinkedHashMap<>();
+        //A map to store the driverId and DriverInfoDTO
+        List<DriverInfoDTO> fuelConsumptionMap = new ArrayList<>();
+        for (Object[] result : results) {
+            Integer driverId = (Integer) result[0];
+            User user = driverRepository.findById(Long.valueOf(driverId))
+                    .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId)).getUser();
+            DriverInfoDTO driverInfoDTO = getDriverInfoDTO(driverId,(Double)result[1], user);
+            fuelConsumptionMap.add(driverInfoDTO);
+        }
+        return fuelConsumptionMap;
+    }
+
+    private DriverInfoDTO getDriverInfoDTO(Integer id, Double result, User user) {
+        String name = user.getFirstName()+" "+ user.getLastName();
+        String classification;
+        if ((Double) result <=10){
+            classification ="Excellent ";
+        } else if ((Double) result >10 && (Double) result <=12) {
+            classification = "Good";
+        }else {
+            classification = "Poor";
+        }
+        return new DriverInfoDTO(id,name, (Double) result,classification);
     }
 
     public Map<Integer, Double> getAverageFuelConsumptionByTop5ForManager(Long managerId, Date startDate, Date endDate) {

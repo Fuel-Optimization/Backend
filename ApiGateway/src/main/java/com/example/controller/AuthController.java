@@ -2,7 +2,10 @@ package com.example.controller;
 
 import com.example.jwt.JwtUtil;
 import com.example.config.UserService;
+import com.example.model.model.Driver;
+import com.example.model.model.Manager;
 import com.example.model.model.User;
+import com.example.model.service.ManagerService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,11 +23,12 @@ public class AuthController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
-
-    public AuthController(UserService userService, JwtUtil jwtUtil, RestTemplate restTemplate) {
+    private final ManagerService managerService;
+    public AuthController(UserService userService, JwtUtil jwtUtil, RestTemplate restTemplate,ManagerService managerService) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.restTemplate = restTemplate;
+        this.managerService = managerService;
     }
 
     @PostMapping("/register")
@@ -38,13 +42,22 @@ public class AuthController {
         User user = userService.loadUserByEmail(authRequest.getUsername());
         if (user != null && userService.isPasswordValid(authRequest.getPassword(), user.getPassword())) {
             // Generate access and refresh tokens
+
             String accessToken = jwtUtil.generateToken(user);
             String refreshToken = jwtUtil.generateRefreshToken(user);
 
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", accessToken);
             response.put("refreshToken", refreshToken);
-//sendRequestToReportService(accessToken);
+            response.put("FullName", user.getFirstName() +" "+ user.getLastName());
+            if (user.getRole().toString()=="Manager") {
+                Manager manager = managerService.FindbyUserId(user.getId());
+                response.put("ManagerId", manager.getId().toString());
+            }
+//            else if (user.getRole().toString()=="Driver") {
+//                Driver driver = DriverService.FindbyUserId(user.getId());
+//                response.put("DriverId", manager.getId().toString());
+//            }
             return response;
         }
         throw new RuntimeException("Invalid username or password");
