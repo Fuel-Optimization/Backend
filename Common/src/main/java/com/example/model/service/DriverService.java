@@ -111,7 +111,7 @@ public class DriverService {
 
 
 
-    public List<Map<String, Object>> getCombinedAverages(Long driverId) {
+    public List<Map<String, Object>> getDriverCombinedAverages(Long driverId) {
         List<DriverRecord> records = driverRecordRepository.findByDriverId(driverId);
 
         // Group by week
