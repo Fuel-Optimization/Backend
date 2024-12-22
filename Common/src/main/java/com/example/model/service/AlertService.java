@@ -22,4 +22,9 @@ public class AlertService {
     public List<Alert> getAlertsByManagerId(Long managerId) {
         return alertRepository.findAllByManagerIdOrderByCreatedAtDesc(managerId);
     }
+
+    // Method to get the last 5 alerts for a specific driver ID
+    public List<Alert> getLast5AlertsByDriverId(Long driverId) {
+        return alertRepository.findTop5ByDriverIdOrderByCreatedAtDesc(driverId);
+    }
 }

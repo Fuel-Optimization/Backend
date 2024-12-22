@@ -30,4 +30,13 @@ public class AlertController {
         }
         return ResponseEntity.ok(alerts);
     }
+
+    @GetMapping("/driver/{driverId}/last5")
+    public ResponseEntity<List<Alert>> getLast5AlertsByDriverId(@PathVariable Long driverId) {
+        List<Alert> alerts = alertService.getLast5AlertsByDriverId(driverId);
+        if (alerts.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(alerts);
+    }
 }
