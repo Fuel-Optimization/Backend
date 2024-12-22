@@ -39,6 +39,15 @@ public class DriverController {
     public Map<String, Object> getDriverSummary(@RequestParam Long driverId) {
         return driverService.getDriverSummary(driverId);
     }
+
+    @GetMapping("/attributes")
+    public ResponseEntity<Map<String, Object>> getAttributeData(
+            @RequestParam Long driverId,
+            @RequestParam String attribute) {
+        Map<String, Object> data = driverService.getAttributeData(driverId, attribute);
+        return ResponseEntity.ok(data);
+    }
+
 }
 
 

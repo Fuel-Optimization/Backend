@@ -21,13 +21,12 @@ import java.util.stream.Collectors;
 public class DriverService {
 
     private final DriverRepository driverRepository;
-    private DriverRecordRepository driverRecordRepository;
 
+    private final DriverRecordRepository driverRecordRepository;
 
-    public DriverService(DriverRepository driverRepository,DriverRecordRepository driverRecordRepository) {
-
+    public DriverService(DriverRepository driverRepository ,  DriverRecordRepository driverRecordRepository) {
         this.driverRepository = driverRepository;
-        this.driverRecordRepository=driverRecordRepository;
+        this.driverRecordRepository = driverRecordRepository;
     }
 
     public List<DriverDto> searchByName(String name) {
@@ -61,6 +60,10 @@ public class DriverService {
         return driverRepository.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId));
     }
+
+
+
+
 
     public List<Map<String, Object>> getDriverDetails(List<Driver> drivers) {
         Date endDate = new Date();
@@ -103,6 +106,9 @@ public class DriverService {
             return driverDetails;
         }).collect(Collectors.toList());
     }
+
+
+
 
 
     public List<Map<String, Object>> getCombinedAverages(Long driverId) {
@@ -203,4 +209,90 @@ public class DriverService {
 
         return summary;
     }
+
+
+
+    public Map<String, Object> getAttributeData(Long driverId, String attribute) {
+        // Temporary hardcoded dates for debugging
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2024, Calendar.AUGUST, 31); // Set start date to August 31, 2024
+        Date startDate = calendar.getTime();
+
+        calendar.set(2024, Calendar.SEPTEMBER, 7); // Set end date to September 7, 2024
+        Date endDate = calendar.getTime();
+
+        // Fetch records within the date range
+        List<DriverRecord> records = driverRecordRepository.findRecordsByDriverIdAndDateRange(driverId, startDate, endDate);
+
+        // Generate sequential labels (1, 2, 3, ...)
+        List<String> labels = new ArrayList<>();
+        for (int i = 1; i <= records.size(); i++) {
+            labels.add(String.valueOf(i));
+        }
+
+        // Extract the specified attribute values dynamically
+        List<Double> values = records.stream()
+                .map(record -> getAttributeValue(record, attribute))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        // Calculate summary statistics with rounding
+        double min = values.stream().mapToDouble(Double::doubleValue).min().orElse(0);
+        double max = values.stream().mapToDouble(Double::doubleValue).max().orElse(0);
+        double average = values.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
+        min = roundToTwoDecimals(min);
+        max = roundToTwoDecimals(max);
+        average = roundToTwoDecimals(average);
+
+        // Build the response map
+        Map<String, Object> response = new HashMap<>();
+        response.put("attribute", attribute);
+        response.put("labels", labels);
+        response.put("values", values);
+        response.put("summary", Map.of(
+                "min", min,
+                "max", max,
+                "average", average
+        ));
+
+        // Debugging Output
+        System.out.println("Start Date: " + startDate);
+        System.out.println("End Date: " + endDate);
+        System.out.println("Fetched Records: " + records.size());
+
+        return response;
+    }
+
+    // Helper method to round a double value to two decimal places
+    private double roundToTwoDecimals(double value) {
+        return BigDecimal.valueOf(value)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+
+    // Helper method to extract the attribute value dynamically
+    private Double getAttributeValue(DriverRecord record, String attribute) {
+        switch (attribute) {
+            case "engineSpeed": return (double) record.getEngineSpeed();
+            case "vehicleSpeed": return (double) record.getVehicleSpeed();
+            case "acceleratorPedalValue": return record.getAcceleratorPedalValue();
+            case "intakeAirPressure": return (double) record.getIntakeAirPressure();
+            case "accelerationSpeedLongitudinal": return record.getAccelerationSpeedLongitudinal();
+            case "minimumIndicatedEngineTorque": return (double) record.getMinimumIndicatedEngineTorque();
+            case "indicationOfBrakeSwitchOnOff": return (double) record.getIndicationOfBrakeSwitchOnOff();
+            case "converterClutch": return (double) record.getConverterClutch();
+            case "engineIdleTargetSpeed": return (double) record.getEngineIdleTargetSpeed();
+            case "currentSparkTiming": return (double) record.getCurrentSparkTiming();
+            case "masterCylinderPressure": return record.getMasterCylinderPressure();
+            case "torqueOfFriction": return (double) record.getTorqueOfFriction();
+            case "engineInFuelCutOff": return (double) record.getEngineInFuelCutOff();
+            case "currentGear": return (double) record.getCurrentGear();
+            case "calculatedRoadGradient": return record.getCalculatedRoadGradient();
+            case "longTermFuelTrimBank1": return record.getLongTermFuelTrimBank1();
+            default: return null;
+        }
+    }
+
 }
