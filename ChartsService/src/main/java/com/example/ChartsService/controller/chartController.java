@@ -1,9 +1,6 @@
 package com.example.ChartsService.controller;
 
-import com.example.ChartsService.dto.AverageContributionsDTO;
-import com.example.ChartsService.dto.DriverBehaviorDTO;
-import com.example.ChartsService.dto.DriverInfoDTO;
-import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
+import com.example.ChartsService.dto.*;
 import com.example.ChartsService.service.chartService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +21,24 @@ public class chartController {
         this.chartService = chartService;
     }
 
+    @GetMapping("/overAllAvgFuelConsumption/{managerId}")
+    public Double getOverAllAverageFuelConsumption(@PathVariable("managerId") Long managerId){
+        return chartService.getOverAllAverageFuelConsumption(managerId);
+    }
+
+    @GetMapping("/monthlyOverAllAvgFuelConsumption/{managerId}")
+    public Double getMonthlyAverageFuelConsumption(@PathVariable("managerId") Long managerId){
+        int defaultYear = 2024;
+        return chartService.getMonthlyAverageFuelConsumption(managerId,defaultYear);
+    }
+
     @GetMapping("/top5drivers")
     public List<DriverInfoDTO> getTop5driversNoDate(@RequestParam Long managerId){
         return chartService.getAverageFuelConsumptionByTop5ForManagerNoDate(managerId);
     }
 
-    @GetMapping("/average-fuel-consumption-top5-manager")
-    public Map<Integer, Double> getAverageFuelConsumptionManagerDate(
+    @GetMapping("/top5driversDate")
+    public List<DriverInfoDTO> getAverageFuelConsumptionManagerDate(
             @RequestParam Long managerId,
             @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
             @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
@@ -66,25 +73,33 @@ public class chartController {
         return chartService.getAverageFuelConsumptionByManagers(managerId, start, end);
     }
 
-    @GetMapping("/average-fuel-consumption-classification")
+    @GetMapping("/average-fuel-consumption-classification-month")
     public  Map<String, Integer> getAverageFuelConsumptionManagerClassification(
-            @RequestParam Long managerId,
-            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
-            @RequestParam (required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
-        Date start = null;
-        Date end = null;
+            @RequestParam("managerId") Long managerId,
+            @RequestParam int month,
+            @RequestParam(required = false, defaultValue = "2024") int year){
 
-        Pair<Date,Date> datePair =chartService.setDefaultDates(startDate,endDate);
-        start = datePair.getKey();
-        end = datePair.getValue();
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Invalid month. Month must be between 1 and 12.");
+        }
 
-        System.out.println(start+" "+end);
-        return chartService.getAverageFuelConsumptionClassificationByManagers(managerId, start, end);
+        return chartService.getAverageFuelConsumptionClassificationMonth(managerId, month, year);
     }
 
-    @GetMapping("/grouped")
-    public Map<String, Object> getGroupedConsumption() {
-        return chartService.getGroupedConsumption();
+
+    @GetMapping("/dailyGrouped/{managerId}")
+    public List<ChartLabelsDTO> getDailyGroupedConsumption(@PathVariable("managerId") Long managerId) {
+        return chartService.getDailyGroupedConsumption(managerId);
+    }
+
+    @GetMapping("/weeklyGrouped/{managerId}")
+    public List<ChartLabelsDTO> getWeeklyGroupedConsumption(@PathVariable("managerId") Long managerId) {
+        return chartService.getWeeklyGroupedConsumption(managerId);
+    }
+
+    @GetMapping("/monthlyGrouped/{managerId}")
+    public List<ChartLabelsDTO> getMonthlyGroupedConsumption(@PathVariable("managerId") Long managerId) {
+        return chartService.getMonthlyGroupedConsumption(managerId);
     }
 
     @GetMapping("/average-attributes-contributions-driver-date/{driverId}")

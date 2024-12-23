@@ -41,22 +41,41 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
 
+    @Query("SELECT AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
+            "FROM DriverRecord f " +
+            "JOIN Driver d ON f.driverId = d.id " +
+            "WHERE d.manager.id = :managerId")
+    Object findAverageFuelConsumptionOfDrivers(@Param("managerId") Long managerId);
+
     @Query("SELECT f.driverId, AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
             "FROM DriverRecord f " +
             "JOIN Driver d ON f.driverId = d.id " +
             "WHERE d.manager.id = :managerId AND f.time BETWEEN :startDate AND :endDate " +
             "GROUP BY f.driverId")
-//    "ORDER BY avgFuelConsumption"
     List<Object[]> findAverageFuelConsumptionByDriverAndManager(@Param("managerId") Long managerId,
                                                                 @Param("startDate") Date startDate,
                                                                 @Param("endDate") Date endDate );
 
-    // Weekly Grouping
-    @Query(value = "SELECT YEARWEEK(f.time, 1) AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
-            "FROM driver_record f " +
-            "GROUP BY period" +
-            "ORDER BY period", nativeQuery = true)
-    List<Object[]> getWeeklyConsumption();
+
+    @Query("SELECT f.driverId, AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
+            "FROM DriverRecord f " +
+            "JOIN Driver d ON f.driverId = d.id " +
+            "WHERE d.manager.id = :managerId AND FUNCTION('MONTH', f.time) = :month AND FUNCTION('YEAR', f.time) = :year " +
+            "GROUP BY f.driverId")
+    List<Object[]> findAverageFuelConsumptionByDriversAndMonth(
+            @Param("managerId") Long managerId,
+            @Param("month") int month,
+            @Param("year") int year
+    );
+
+    @Query("SELECT AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
+            "FROM DriverRecord f " +
+            "JOIN Driver d ON f.driverId = d.id " +
+            "WHERE d.manager.id = :managerId AND YEAR(f.time)= :year")
+    Object findMonthlyAverageFuelConsumption(
+            @Param("managerId") Long managerId,
+            @Param("year") int year
+    );
 
     @Query(value = "select AVG(dr.engine_speed_contribution) AS engineSpeedContribution, " +
         "AVG(dr.vehicle_speed_contribution) AS vehicleSpeedContribution, " +
@@ -106,15 +125,38 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             @Param("endDate") Date endDate
     );
 
-    // Monthly Grouping
-    @Query(value = "SELECT DATE_FORMAT(f.time, '%Y-%m') AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption" +
-            "FROM driver_record f GROUP BY period ORDER BY period", nativeQuery = true)
-    List<Object[]> getMonthlyConsumption();
+    @Query(value = "SELECT WEEK(f.time, 1) AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
+            "FROM driver_record f " +
+            "JOIN drivers d ON f.driver_id = d.id " +
+            "WHERE d.manager_id = :managerId " +
+            "GROUP BY period " +
+            "ORDER BY period",
+            nativeQuery = true)
+    List<Object[]> getWeeklyConsumption(
+            @Param("managerId") Long managerId
+    );
 
-    // Yearly Grouping
-    @Query(value = "SELECT YEAR(f.time) AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
-            "FROM driver_record f GROUP BY period ORDER BY period", nativeQuery = true)
-    List<Object[]> getYearlyConsumption();
+
+    @Query(value = "SELECT DAYOFYEAR(f.time) AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
+            "FROM driver_record f " +
+            "JOIN drivers d ON f.driver_id = d.id " +
+            "WHERE d.manager_id = :managerId " +
+            "GROUP BY period " +
+            "ORDER BY period",
+            nativeQuery = true)
+    List<Object[]> getDailyConsumption(@Param("managerId") Long managerId);
+
+
+    @Query(value = "SELECT DATE_FORMAT(f.time, '%Y-%m') AS period, AVG(f.predicted_fuel_consumption) AS avgFuelConsumption " +
+            "FROM driver_record f " +
+            "JOIN drivers d ON f.driver_id = d.id " +
+            "WHERE d.manager_id = :managerId " +
+            "GROUP BY period " +
+            "ORDER BY period",
+            nativeQuery = true)
+    List<Object[]> getMonthlyConsumption(@Param("managerId") Long managerId);
+
+
     @Query("SELECT dr FROM DriverRecord dr WHERE dr.driverId = :driverId")
     List<DriverRecord> findRecordsByDriverId(Long driverId);
 }

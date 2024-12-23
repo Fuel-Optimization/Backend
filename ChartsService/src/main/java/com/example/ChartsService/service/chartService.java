@@ -1,9 +1,6 @@
 package com.example.ChartsService.service;
 
-import com.example.ChartsService.dto.AverageContributionsDTO;
-import com.example.ChartsService.dto.DriverBehaviorDTO;
-import com.example.ChartsService.dto.DriverInfoDTO;
-import com.example.ChartsService.dto.PredictedFuelConsumptionDTO;
+import com.example.ChartsService.dto.*;
 import com.example.model.Repository.DriverRecordRepository;
 import com.example.model.Repository.DriverRepository;
 import com.example.model.model.User;
@@ -12,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
@@ -24,11 +24,35 @@ public class chartService {
         this.driverRepository = driverRepository;
     }
 
+    public Double getOverAllAverageFuelConsumption(Long managerId){
+        Object result = driverRecordRepository.findAverageFuelConsumptionOfDrivers(managerId);
+        return (Double)result;
+    }
+
+    public Double getMonthlyAverageFuelConsumption(Long managerId,int year){
+        Object result = driverRecordRepository.findMonthlyAverageFuelConsumption(managerId,year);
+        return (Double)result;
+    }
+
     public List<DriverInfoDTO> getAverageFuelConsumptionByTop5ForManagerNoDate(Long managerId) {
         List<Object[]> results = driverRecordRepository.findAverageFuelConsumptionByTop5ForManagerNoDate(managerId);
 
-//        Map<Integer, Double> fuelConsumptionMap = new LinkedHashMap<>();
         //A map to store the driverId and DriverInfoDTO
+        List<DriverInfoDTO> fuelConsumptionList = new ArrayList<>();
+        for (Object[] result : results) {
+            Integer driverId = (Integer) result[0];
+            User user = driverRepository.findById(Long.valueOf(driverId))
+                    .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId)).getUser();
+            DriverInfoDTO driverInfoDTO = getDriverInfoDTO(driverId,(Double)result[1], user);
+            fuelConsumptionList.add(driverInfoDTO);
+        }
+        return fuelConsumptionList;
+    }
+
+
+    public List<DriverInfoDTO> getAverageFuelConsumptionByTop5ForManager(Long managerId, Date startDate, Date endDate) {
+        List<Object[]> results = driverRecordRepository.findAverageFuelConsumptionByTop5ForManager(managerId, startDate, endDate);
+
         List<DriverInfoDTO> fuelConsumptionMap = new ArrayList<>();
         for (Object[] result : results) {
             Integer driverId = (Integer) result[0];
@@ -44,25 +68,13 @@ public class chartService {
         String name = user.getFirstName()+" "+ user.getLastName();
         String classification;
         if ((Double) result <=10){
-            classification ="Excellent ";
+            classification ="Excellent";
         } else if ((Double) result >10 && (Double) result <=12) {
             classification = "Good";
         }else {
             classification = "Poor";
         }
         return new DriverInfoDTO(id,name, (Double) result,classification);
-    }
-
-    public Map<Integer, Double> getAverageFuelConsumptionByTop5ForManager(Long managerId, Date startDate, Date endDate) {
-        List<Object[]> results = driverRecordRepository.findAverageFuelConsumptionByTop5ForManager(managerId, startDate, endDate);
-
-        Map<Integer, Double> fuelConsumptionMap = new LinkedHashMap<>();
-        for (Object[] result : results) {
-            Integer driverId = (Integer) result[0];
-            Double avgFuelConsumption = (Double) result[1];
-            fuelConsumptionMap.put(driverId, avgFuelConsumption);
-        }
-        return fuelConsumptionMap;
     }
 
     public  Map<String,Double> getAverageFuelConsumptionByManagers(Long managerId, Date startDate, Date endDate) {
@@ -79,20 +91,20 @@ public class chartService {
         return fuelConsumptionMap;
     }
 
-    public   Map<String, Integer> getAverageFuelConsumptionClassificationByManagers(Long managerId, Date startDate, Date endDate) {
+    public   Map<String, Integer> getAverageFuelConsumptionClassificationMonth(Long managerId, int month, int year) {
         Map<String, Integer> classificationCount = new HashMap<>();
-        Map<String,  Double> fuelConsumptionMap = getAverageFuelConsumptionByManagers(managerId,startDate,endDate);
-        for (Map.Entry<String,Double> entry : fuelConsumptionMap.entrySet()){
-            Double avgFuelConsumption = entry.getValue();
+        List<Object[]> results  = driverRecordRepository.findAverageFuelConsumptionByDriversAndMonth(managerId,month,year);
+        for ( Object[] result : results){
+            Integer driverId = (Integer) result[0];
+            Double avgFuelConsumption = (Double)result[1];
             String classification;
             if (avgFuelConsumption<=10){
-                classification ="Excellent ";
+                classification ="Excellent";
             } else if (avgFuelConsumption>10 && avgFuelConsumption <=12) {
-                classification = "Moderate";
+                classification = "Good";
             }else {
                 classification = "Poor";
             }
-
             classificationCount.put(classification, classificationCount.getOrDefault(classification, 0) + 1);
         }
         return classificationCount;
@@ -125,23 +137,51 @@ public class chartService {
         return dates;
     }
 
-    public Map<String, Object> getGroupedConsumption() {
-        Map<String, Object> result = new HashMap<>();
-
-//        // Weekly Data
-//        List<Object[]> weeklyData = driverRecordRepository.getWeeklyConsumption();
-//        result.put("weekly", weeklyData);
-//
-//        // Monthly Data
-//        List<Object[]> monthlyData = driverRecordRepository.getMonthlyConsumption();
-//        result.put("monthly", monthlyData);
-
-        // Yearly Data
-        List<Object[]> yearlyData = driverRecordRepository.getYearlyConsumption();
-        result.put("yearly", yearlyData);
-
-        return result;
+    public List<ChartLabelsDTO> getDailyGroupedConsumption(Long managerId){
+        List<Object[]> results = driverRecordRepository.getDailyConsumption(managerId);
+        List<ChartLabelsDTO> FuelConsumptionList = new ArrayList<>();
+        for (Object[] result : results) {
+            int dayOfYear = ((Number) result[0]).intValue();
+            double avgFuelConsumption = (Double) result[1];
+            ChartLabelsDTO chartLabel = new ChartLabelsDTO("Day "+ dayOfYear, avgFuelConsumption );
+            FuelConsumptionList.add(chartLabel);
+        }
+        return FuelConsumptionList;
     }
+
+    public List<ChartLabelsDTO> getWeeklyGroupedConsumption(Long managerId) {
+        List<Object[]> results = driverRecordRepository.getWeeklyConsumption(managerId);
+        List<ChartLabelsDTO> FuelConsumptionList = new ArrayList<>();
+        for (Object[] result : results) {
+            int weekOfYear = ((Number) result[0]).intValue();
+            double avgFuelConsumption = (Double) result[1];
+            ChartLabelsDTO chartLabel = new ChartLabelsDTO("Week "+ weekOfYear, avgFuelConsumption);
+            FuelConsumptionList.add(chartLabel);
+        }
+        return FuelConsumptionList;
+    }
+
+    public List<ChartLabelsDTO> getMonthlyGroupedConsumption(Long managerId) {
+        List<Object[]> results = driverRecordRepository.getMonthlyConsumption(managerId);
+        List<ChartLabelsDTO> FuelConsumptionList = new ArrayList<>();
+        for (Object[] result : results) {
+            String month = ((String) result[0]);
+            double avgFuelConsumption = (Double) result[1];
+            String formattedMonth = formatPeriodToMonthName(month);
+            ChartLabelsDTO chartLabel = new ChartLabelsDTO(formattedMonth, avgFuelConsumption );
+            FuelConsumptionList.add(chartLabel);
+        }
+        return FuelConsumptionList;
+    }
+
+    private String formatPeriodToMonthName(String period) {
+        try {
+            YearMonth yearMonth = YearMonth.parse(period);
+            return yearMonth.getMonth()
+                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + yearMonth.getYear(); //FULL for full month name
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid period format: " + period + ". Expected format: YYYY-MM.");
+        }}
 
     public AverageContributionsDTO getAverageAttributesContributionsByDriverAndDate(Long driverId, Date startDate, Date endDate){
         Object[] result = driverRecordRepository.findAverageAttributesContributionsByDriverAndDate(driverId, startDate, endDate).get(0);
