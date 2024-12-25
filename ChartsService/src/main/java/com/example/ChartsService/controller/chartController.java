@@ -156,4 +156,18 @@ public class chartController {
 
         return chartService.getDailyDriverBehavior(driverID,start,end);
     }
+
+    @GetMapping("/average-daily-predicted-fuel-consumption-manager-date/{managerId}")
+    public List<PredictedFuelConsumptionDTO> getDailyAveragePredictedFuelConsumptionByManagerAndDate(
+            @PathVariable("managerId") Long managerId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate) throws ParseException {
+        // Convert String to Date
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = formatter.parse(startDate);
+        Date end = formatter.parse(endDate);
+        System.out.println(start +" "+ end);
+
+        return chartService.getDailyAveragePredictedFuelConsumptionByManagerAndDate(managerId,start,end);
+    }
 }

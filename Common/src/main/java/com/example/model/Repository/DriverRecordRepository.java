@@ -117,4 +117,19 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
     List<Object[]> getYearlyConsumption();
     @Query("SELECT dr FROM DriverRecord dr WHERE dr.driverId = :driverId")
     List<DriverRecord> findRecordsByDriverId(Long driverId);
+
+
+    @Query(value = "SELECT AVG(dr.predicted_fuel_consumption) AS dailyAverage, " +
+            "DATE(dr.time) AS day " +
+            "FROM driver_record dr " +
+            "JOIN drivers d ON dr.driver_id = d.id " +
+            "where d.manager_id = :managerId "+
+            "AND dr.time BETWEEN :startDate AND :endDate "+
+            "GROUP BY DATE(dr.time) " +
+            "ORDER BY DATE(dr.time);", nativeQuery = true)
+    List<Object[]> findDailyAveragePredictedFuelConsumptionByManagerAndDate(
+            @Param("managerId") Long managerId,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate
+    );
 }
