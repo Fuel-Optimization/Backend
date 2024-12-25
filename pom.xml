@@ -28,6 +28,8 @@
 		<module>UserManagementService</module>
 		<module>OdbListhenService</module>
 		<module>ReportService</module>
+		<module>EurekaServer</module>
+		<module>ChartsService</module>
         <module>SearchingService</module>
 		<module>APIGateway</module>
 	</modules>
