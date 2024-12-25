@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
      Optional<Driver> findById(Long id);
-
+     Optional<Driver> findByUserId(Long userId);
      @Query("SELECT d FROM Driver d JOIN d.user u WHERE u.firstName LIKE %:name% OR u.lastName LIKE %:name% OR u.familyName LIKE %:name%")
      List<Driver> findByName(@Param("name") String name);
 

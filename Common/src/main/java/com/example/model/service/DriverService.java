@@ -5,6 +5,7 @@ import com.example.model.dto.DriverDto;
 import com.example.model.dto.UserDTO;
 import com.example.model.model.Driver;
 import com.example.model.model.DriverRecord;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class DriverService {
     private final DriverRepository driverRepository;
 
     private final DriverRecordRepository driverRecordRepository;
+
 
     public DriverService(DriverRepository driverRepository ,  DriverRecordRepository driverRecordRepository) {
         this.driverRepository = driverRepository;
@@ -61,9 +63,10 @@ public class DriverService {
                 .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverId));
     }
 
-
-
-
+    public Driver getDriverByUserId(Long userId) throws ResourceNotFoundException {
+        return driverRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found with User ID: " + userId));
+    }
 
     public List<Map<String, Object>> getDriverDetails(List<Driver> drivers) {
         Date endDate = new Date();
