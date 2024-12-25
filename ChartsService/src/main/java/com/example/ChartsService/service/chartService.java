@@ -274,4 +274,18 @@ public class chartService {
         }
         return dailyDriverBehaviorDTOs;
     }
+
+    public List<PredictedFuelConsumptionDTO> getDailyAveragePredictedFuelConsumptionByManagerAndDate(Long managerId, Date startDate, Date endDate) {
+        List<Object[]> results = driverRecordRepository.findDailyAveragePredictedFuelConsumptionByManagerAndDate(managerId, startDate, endDate);
+        List<PredictedFuelConsumptionDTO> dailyAveragePredictedFuelConsumptionDTOs = new ArrayList<PredictedFuelConsumptionDTO>();
+        for (Object[] result : results) {
+            dailyAveragePredictedFuelConsumptionDTOs.add(PredictedFuelConsumptionDTO.builder()
+                    .predictedFuelConsumption((Double) result[0])
+                    .time((Date) result[1])
+                    .build()
+            );
+        }
+        return dailyAveragePredictedFuelConsumptionDTOs;
+    }
+
 }

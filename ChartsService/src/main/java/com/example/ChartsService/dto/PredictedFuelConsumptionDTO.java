@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class PredictedFuelConsumptionDTO {
 
-    @JsonProperty("predicted_fuel_consumption")
+    @JsonProperty("fuel_consumption")
     private Double predictedFuelConsumption;
 
     @JsonProperty("time")
