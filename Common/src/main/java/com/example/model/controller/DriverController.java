@@ -2,10 +2,9 @@ package com.example.model.controller;
 import com.example.model.Repository.DriverRepository;
 import com.example.model.model.Driver;
 import com.example.model.service.DriverService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,23 +21,32 @@ public class DriverController {
         this.driverRepository = driverRepository;
     }
 
-    @GetMapping("/{id}")
-    public List<Map<String, Object>> getDrivers(@PathVariable Long id) {
-        List<Driver> drivers = driverRepository.findDriversByManagerId(id);
+    @GetMapping("/{managerID}")
+    public List<Map<String, Object>> getDriversByManagerID(@PathVariable Long managerID) {
+        List<Driver> drivers = driverRepository.findByManagerId(managerID);
         return driverService.getDriverDetails(drivers);
     }
 
     @GetMapping("/averages")
-    public ResponseEntity<List<Map<String, Object>>> getCombinedAverages(
+    public ResponseEntity<List<Map<String, Object>>> getDriverCombinedAverages(
             @RequestParam Long driverId
     ) {
-        return ResponseEntity.ok(driverService.getCombinedAverages(driverId));
+        return ResponseEntity.ok(driverService.getDriverCombinedAverages(driverId));
     }
 
     @GetMapping("/summary")
     public Map<String, Object> getDriverSummary(@RequestParam Long driverId) {
         return driverService.getDriverSummary(driverId);
     }
+
+    @GetMapping("/attributes")
+    public ResponseEntity<Map<String, Object>> getAttributeData(
+            @RequestParam Long driverId,
+            @RequestParam String attribute) {
+        Map<String, Object> data = driverService.getAttributeData(driverId, attribute);
+        return ResponseEntity.ok(data);
+    }
+
 }
 
 

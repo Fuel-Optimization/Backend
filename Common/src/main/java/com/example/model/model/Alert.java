@@ -1,5 +1,6 @@
 package com.example.model.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +23,9 @@ public class Alert {
     private String driverId;
 
 
-    @Column(name = "FuelConspumtion", nullable = false)
-    private Double FuelConspumtion;
+    @Column(name = "fuel_consumption", nullable = false)
+    private Double fuelConsumption;
+
 
     @Column(name = "alertmessage", nullable = false)
     private String Alertmessage;
@@ -32,6 +34,7 @@ public class Alert {
     private LocalDateTime createdAt;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JsonIgnore
     @JoinColumn(name = "manager_id", referencedColumnName = "id")
     private Manager manager;
 

@@ -67,17 +67,18 @@ public class RedisService {
             if (driver != null && driver.getManager() != null) {
                 Manager manager = driver.getManager();
                 String DriverFullName = driver.getUser().getFirstName() + " " +
-                        driver.getUser().getFamilyName();
+                        driver.getUser().getFamilyName()+ " " + driver.getUser().getLastName();
                 Alert alert = new Alert(
                         0L,
                         String.valueOf(driverId),
                         avgFuelConsumption,
                         "Driver " + DriverFullName +
-                                " has consumed more than " + avgFuelConsumption +
+                                " has consumed more than " + String.format("%.2f", avgFuelConsumption) +
                                 " liters per unit over the recent period.",
                         LocalDateTime.now(),
                         manager
                 );
+
                 alertRepository.save(alert);
                 emailService.TriggerEmail(manager, DriverFullName, avgFuelConsumption);
             }

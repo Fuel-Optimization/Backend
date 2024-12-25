@@ -23,7 +23,7 @@
 	</developers>
     <modules>
         <module>OdbMockProducer</module>
-
+		<module>EurekaServer</module>
 		<module>Common</module>
 		<module>UserManagementService</module>
 		<module>OdbListhenService</module>
