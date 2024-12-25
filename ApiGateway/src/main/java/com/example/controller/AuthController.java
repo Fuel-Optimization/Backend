@@ -5,6 +5,7 @@ import com.example.config.UserService;
 import com.example.model.model.Driver;
 import com.example.model.model.Manager;
 import com.example.model.model.User;
+import com.example.model.service.DriverService;
 import com.example.model.service.ManagerService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,11 +25,13 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate;
     private final ManagerService managerService;
-    public AuthController(UserService userService, JwtUtil jwtUtil, RestTemplate restTemplate,ManagerService managerService) {
+    private final DriverService driverService;
+    public AuthController(UserService userService, DriverService DriverService,JwtUtil jwtUtil, RestTemplate restTemplate,ManagerService managerService) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.restTemplate = restTemplate;
         this.managerService = managerService;
+        this.driverService = DriverService;
     }
 
     @PostMapping("/register")
@@ -53,11 +56,13 @@ public class AuthController {
             if (user.getRole().toString()=="Manager") {
                 Manager manager = managerService.FindbyUserId(user.getId());
                 response.put("ManagerId", manager.getId().toString());
+                response.put("Role","Manager");
             }
-//            else if (user.getRole().toString()=="Driver") {
-//                Driver driver = DriverService.FindbyUserId(user.getId());
-//                response.put("DriverId", manager.getId().toString());
-//            }
+            else if (user.getRole().toString()=="Driver") {
+                Driver driver = driverService.getDriverByUserId(user.getId());
+                response.put("DriverId", driver.getId().toString());
+                response.put("Role","Driver");
+            }
             return response;
         }
         throw new RuntimeException("Invalid username or password");
