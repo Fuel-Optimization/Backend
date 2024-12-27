@@ -63,6 +63,7 @@ public class AuthController {
                 response.put("DriverId", driver.getId().toString());
                 response.put("Role","Driver");
             }
+            System.out.println(response);
             return response;
         }
         throw new RuntimeException("Invalid username or password");

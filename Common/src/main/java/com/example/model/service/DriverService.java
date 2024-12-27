@@ -111,8 +111,47 @@ public class DriverService {
     }
 
 
+    public Map<String, Object> getDriverDetailsForOneDriver(Driver driver) {
+        Date endDate = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(endDate);
+        calendar.add(Calendar.DAY_OF_YEAR, -14); // Two weeks ago
+        Date startDate = calendar.getTime();
 
 
+        //List<DriverRecord> records = driverRecordRepository.findRecordsByDriverIdAndDateRange(driver.getId(), startDate, endDate);
+        List<DriverRecord> records = driverRecordRepository.findRecordsByDriverId(driver.getId());
+        double avgFuelConsumption = records.stream()
+                .mapToDouble(DriverRecord::getPredictedFuelConsumption)
+                .average()
+                .orElse(0);
+
+        // Round the average fuel consumption to two decimal places
+        avgFuelConsumption = BigDecimal.valueOf(avgFuelConsumption)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        String status;
+        if (avgFuelConsumption < 10) {
+            status = "excellent";
+        } else if (avgFuelConsumption <= 15) {
+            status = "good";
+        } else {
+            status = "poor";
+        }
+
+        Map<String, Object> driverDetails = new HashMap<>();
+        driverDetails.put("id", driver.getId());
+        driverDetails.put("name", driver.getUser().getFirstName() + " " + driver.getUser().getLastName());
+        driverDetails.put("email", driver.getUser().getEmail()); // Add email
+        driverDetails.put("mobile", driver.getUser().getPhoneNumber()); // Add mobile number
+        driverDetails.put("yearsOfExperience", driver.getYearsOfExperience());
+        driverDetails.put("avgFuelConsumption", avgFuelConsumption);
+        driverDetails.put("status", status);
+
+        return driverDetails;
+
+    }
 
     public List<Map<String, Object>> getDriverCombinedAverages(Long driverId) {
         List<DriverRecord> records = driverRecordRepository.findByDriverId(driverId);

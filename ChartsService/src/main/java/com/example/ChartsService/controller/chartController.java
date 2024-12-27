@@ -26,11 +26,6 @@ public class chartController {
         return chartService.getOverAllAverageFuelConsumption(managerId);
     }
 
-    @GetMapping("/monthlyOverAllAvgFuelConsumption/{managerId}")
-    public Double getMonthlyAverageFuelConsumption(@PathVariable("managerId") Long managerId){
-        int defaultYear = 2024;
-        return chartService.getMonthlyAverageFuelConsumption(managerId,defaultYear);
-    }
 
     @GetMapping("/top5drivers")
     public List<DriverInfoDTO> getTop5driversNoDate(@RequestParam Long managerId){
@@ -108,7 +103,7 @@ public class chartController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String endDate) throws ParseException {
         // Convert String to Date
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date start = formatter.parse(startDate);
         Date end = formatter.parse(endDate);
         System.out.println(start +" "+ end);

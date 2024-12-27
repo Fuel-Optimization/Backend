@@ -29,10 +29,6 @@ public class chartService {
         return (Double)result;
     }
 
-    public Double getMonthlyAverageFuelConsumption(Long managerId,int year){
-        Object result = driverRecordRepository.findMonthlyAverageFuelConsumption(managerId,year);
-        return (Double)result;
-    }
 
     public List<DriverInfoDTO> getAverageFuelConsumptionByTop5ForManagerNoDate(Long managerId) {
         List<Object[]> results = driverRecordRepository.findAverageFuelConsumptionByTop5ForManagerNoDate(managerId);

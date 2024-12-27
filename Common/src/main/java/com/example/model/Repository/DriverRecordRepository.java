@@ -68,14 +68,6 @@ public interface DriverRecordRepository extends JpaRepository<DriverRecord, Long
             @Param("year") int year
     );
 
-    @Query("SELECT AVG(f.predictedFuelConsumption) AS avgFuelConsumption " +
-            "FROM DriverRecord f " +
-            "JOIN Driver d ON f.driverId = d.id " +
-            "WHERE d.manager.id = :managerId AND YEAR(f.time)= :year")
-    Object findMonthlyAverageFuelConsumption(
-            @Param("managerId") Long managerId,
-            @Param("year") int year
-    );
 
     @Query(value = "select AVG(dr.engine_speed_contribution) AS engineSpeedContribution, " +
         "AVG(dr.vehicle_speed_contribution) AS vehicleSpeedContribution, " +

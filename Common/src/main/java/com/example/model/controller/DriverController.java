@@ -5,8 +5,10 @@ import com.example.model.service.DriverService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -25,6 +27,13 @@ public class DriverController {
     public List<Map<String, Object>> getDriversByManagerID(@PathVariable Long managerID) {
         List<Driver> drivers = driverRepository.findByManagerId(managerID);
         return driverService.getDriverDetails(drivers);
+    }
+
+    @GetMapping("/driver/{driverID}")
+    public Map<String, Object> getDriverByDriverID(@PathVariable Long driverID) {
+        Driver driver = driverRepository.findById(driverID)
+                .orElseThrow(() -> new RuntimeException("Driver not found with ID: " + driverID));
+        return driverService.getDriverDetailsForOneDriver(driver);
     }
 
     @GetMapping("/averages")
