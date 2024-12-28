@@ -12,6 +12,9 @@ import java.util.List;
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     List<Alert> findAllByManagerIdOrderByCreatedAtDesc(Long managerId);
 
+    @Query("SELECT a FROM Alert a WHERE a.driverId = :driverId ORDER BY a.createdAt DESC")
+    List<Alert> findAllByDriverIdOrderByCreatedAtDesc(@Param("driverId") Long driverId);
+
     @Query("SELECT a FROM Alert a WHERE a.driverId = :driverId ORDER BY a.createdAt DESC LIMIT 5")
     List<Alert> findTop5ByDriverIdOrderByCreatedAtDesc(@Param("driverId") Long driverId);
 }
